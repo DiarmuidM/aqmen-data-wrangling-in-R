@@ -31,3 +31,20 @@ The workshop would benefit any individual, whether in academia or industry, look
 ### Rationale: 
 
 The Industrial Strategy recognises that a major challenge facing UK businesses and industry is how best to utilise big data to improve economic performance and increase productivity. A substantial barrier to exploiting the potential offered by emerging forms of big data is the lack of a suitably trained workforce with appropriate analytical skills. Many statistical techniques used in the social sciences are also suitable for the analysis of big data in non-academic settings, however social science graduates often lack experience in applying their skills and knowledge in non-academic research domains.
+
+### Further Training:
+
+This workshop is part of a series of data science training offered by AQMEN:
+1. [Data Wrangling: Organising and Enabling Data](https://github.com/DiarmuidM/aqmen-data-wrangling-in-R)
+2. [Predictive Analytics](https://github.com/DiarmuidM/aqmen-predictive-analytics-in-R)
+3. [Data Visualisation](https://github.com/DiarmuidM/aqmen-data-visualisation-in-R)
+
+The materials underpinning each training session can be accessed by clicking on the workshop title above.
+
+### Contact:
+
+Feel free to contact AQMEN if you would like to discuss any aspect of the training or unmet data science skills development needs: [http://www.aqmen.ac.uk/contact_us](http://www.aqmen.ac.uk/contact_us)
+
+### Acknowledgements:
+
+Our thanks to the Economic and Social Research Council (ESRC) for supporting this training programme: Grant No. **ES/R006334/1**

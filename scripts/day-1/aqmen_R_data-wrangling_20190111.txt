@@ -1,5 +1,127 @@
-# Data Wrangling in R #
-# Derived from Boehmke (2016), Fogarty (2018), and Grolemund and Wickham (2017)
+# 
+# AQMEN (Data Science for Social Research)
+# http://www.aqmen.ac.uk/
+#
+# 
+# Data Wrangling: Organising and Enabling Data
+# 
+# R and Python Workshop (March 2019)
+# 
+# A three day hands-on workshop led by Dr Diarmuid McDonnell and Professor Vernon Gayle, University of Edinburgh.
+# 
+# 
+# ##############################################
+# # IT IS IMPORTANT THAT YOU READ THIS HANDOUT #
+# # AND FOLLOW THE R FILE LINE BY LINE! #
+# ##############################################
+# 
+# 
+# Topics: 
+# 
+# This three-day workshop will provide a fast-track introduction for individuals wishing to learn how to work with data suitable 
+# for statistical analysis of business problems. Preparing and enabling data (data wrangling) is an essential aspect of undertaking 
+# data intensive statistical research. Data wrangling is highly time consuming and can be complex especially when dealing with messy data, 
+# which is often encountered in the non-academic world. 
+#
+# There will be an emphasis on developing accurate, efficient, transparent and reproducible working practices when organising and enabling data.
+# 
+# Rationale: 
+# 
+# The Industrial Strategy recognises that a major challenge facing UK businesses and industry is how best to utilise big data 
+# to improve economic performance and increase productivity. A substantial barrier to exploiting the potential offered by 
+# emerging forms of big data is the lack of a suitably trained workforce with appropriate analytical skills. 
+#
+# Many statistical techniques used in the social sciences are also suitable for the analysis of big data in non-academic settings, 
+# however social science graduates often lack experience in applying their skills and knowledge in non-academic research domains.
+#
+# Advice:
+# 
+# Please be patient. Computers often go wrong.
+# 
+# Please asks the tutors for help.
+#
+##############################################
+
+
+##############################################
+
+# Outline of Activities #
+
+# The workshop is based around a series of activities that involve the use of R for performing statistical analyses of administrative data:
+#	1. Getting Started with R: a quick introduction to data types, structures and formats
+#	2. Fundamental Statistical Concepts: performing rudimentary data analyses e.g. crosstabulations, summary statistics, hypotheses tests
+#	3. Statistical Models: how to estimate three "vanilla" regression models - linear, logistic and count (Poisson)
+#	4. Longitudinal Data Analysis: how to estimate models that account for data containing repeated obervations or clusters
+#	5. Analysing Durations: how to analyse outcomes where the unit of observation is time or a duration 
+#	6. Modelling Trends: an introduction to time-series analysis
+#	7. Hackathon: two blocks of time where participants will tackle a data analysis challenge using administrative data
+
+# The aim of the workshop is to equip you with a proficiency in predictive analytics using R as rapidly and painlessly as possible.
+
+# Therefore, be good to yourself: we explore a multitude of useful modelling techniques that often take a semester to cover. 
+
+# You likely won't learn everything first time (if you do come speak to us about a teaching job!).
+
+##############################################
+
+
+##############################################
+
+# 0. Software Demonstration #
+
+# 0.1 System Setup #
+
+# Create a R project folder/directory
+
+# Open RStudio and follow these instructions:
+# 	- File > New Project
+#	  - Create project directory
+
+getwd() # tells us the current working directory i.e. workspace
+# setwd("C:/Users/mcdonndz-local/Desktop/temp") # set the working directory to a specified directory; however we have no need to
+# do this as we have already set up a directory to store all of the components of our R project.
+
+folders = c('data_raw', 'data_clean', 'temp', 'logs') # create a list with folder names
+for(f in folders) {
+  print(f)
+  dir.create(f)
+} # take a look at the bottom right-hand panel in RStudio (or the directory on your machine) to check if the folders were created
+
+# Creating and saving files:
+data <- file.create("./temp/sampdata.csv")
+write.csv(data, "./temp/sampdata_20190321.csv")
+# Note the use of "." at the beginning of the file path; this signifies that the current working directory
+# should form the first part of the path without needing to be explicitly stated. This is an example of
+# using relative file paths and is considered good practice.
+
+# List all files in our working directory:
+dir() # list all files in a directory
+head(dir(recursive = TRUE)) # list all files in a directory (including its subdirectories); head() restricts the output to the first few results
+dir(pattern = "\\.csv$", recursive = TRUE) # find all files that end in ".csv"
+# The above command used regular expressions to detect patterns in text.
+
+file.info("./data_raw/sampdata.csv") # displays some basic file information 
+# (e.g. size, whether it is a folder, created and modified times)
+
+# That's enough file management for now. There are lots of other tasks we can perform, such as copying, moving, deleting,
+# opening, checking if a file exists etc, that we do not cover here: see [http://theautomatic.net/2018/07/11/manipulate-files-r/]
+
+# TASK: move the files from the workshop Dropbox folder to the "data_raw" directory you just created.
+
+# 0.2 Installing Packages
+
+install.packages("car")
+install.packages("aod")
+install.packages("haven")
+install.packages("ResourceSelection")
+##
+# INSTALL PACKAGES SIMILARLY TO DATA VIZ
+##
+
+##############################################
+
+
+##############################################
 
 # Proficiency in marshalling data for the purpose of analysis is a (some would say "the") crucial data science skill in industry and academia.
 
