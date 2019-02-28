@@ -8,7 +8,7 @@
 
 <h3 align="center">R and Python Workshop (March 2019)</h3>
 
-<h3 align="center">A three day hands-on workshop led by Dr Diarmuid McDonnell and Professor Vernon Gayle, University of Edinburgh.</h3>
+<h3 align="center">A three day hands-on workshop led by [Dr Diarmuid McDonnell](https://diarmuidm.github.io/) and [Professor Vernon Gayle](http://www.vernongayle.com/), University of Edinburgh.</h3>
 
 <br>
 
