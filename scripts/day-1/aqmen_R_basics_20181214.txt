@@ -110,7 +110,7 @@ example("strtrim") # display example code using this function
 # In RStudio, you can also highlight the function in your code and press F1.
 
 help(mean) # let's dissect the help material for the mean() function
-vignette("dplyr") # some of the better-documented packages provide detailed examples of how to use the package
+vignette("dplyr") # some of the better-documented packages provide detailed examples of how to use its functions
 
 # Can't quite remember the name of an object or function?
 apropos("sum") # returns all objects in the global environment that contain the text "sum"
