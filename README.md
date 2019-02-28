@@ -1,4 +1,4 @@
-<div align="center"><img src="./images/aqmen_logo.png" alt="AQMEN logo" width="100" height="100"></div>
+<div align="center"><img src="./images/aqmen_logo.png" alt="AQMEN logo" width="150" height="150"></div>
 
 <h2 align="center"><a href="http://www.aqmen.ac.uk/" target="_blank">AQMEN: Data Science Training for Social Research, Business and Industry</a></h2>
 
