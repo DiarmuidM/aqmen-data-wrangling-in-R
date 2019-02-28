@@ -10,12 +10,6 @@
 # A three day hands-on workshop led by Dr Diarmuid McDonnell and Professor Vernon Gayle, University of Edinburgh.
 # 
 # 
-# ##############################################
-# # IT IS IMPORTANT THAT YOU READ THIS HANDOUT #
-# # AND FOLLOW THE R FILE LINE BY LINE! #
-# ##############################################
-# 
-# 
 # Topics: 
 # 
 # This three-day workshop will provide a fast-track introduction for individuals wishing to learn how to work with data suitable 
@@ -25,20 +19,36 @@
 #
 # There will be an emphasis on developing accurate, efficient, transparent and reproducible working practices when organising and enabling data.
 # 
+#
 # Rationale: 
 # 
 # The Industrial Strategy recognises that a major challenge facing UK businesses and industry is how best to utilise big data 
 # to improve economic performance and increase productivity. A substantial barrier to exploiting the potential offered by 
 # emerging forms of big data is the lack of a suitably trained workforce with appropriate analytical skills. 
 #
-# Many statistical techniques used in the social sciences are also suitable for the analysis of big data in non-academic settings, 
+# Many statistical analysis techniques used in the social sciences are also suitable for working with big data in non-academic settings, 
 # however social science graduates often lack experience in applying their skills and knowledge in non-academic research domains.
 #
+#
 # Advice:
-# 
+#
+# The workshop is intended for people who have little prior experience of R.
+#
+# The aim of the workshop is to equip you with a proficiency in data wrangling using R as rapidly and painlessly as possible.
+#
+# Therefore, be good to yourself: we explore a multitude of useful data wrangling techniques that often take most of a semester to cover. 
+#
+# It will NOT be possible to learn everthing in three days (drinks on us if you prove us wrong).
+#
 # Please be patient. Computers often go wrong.
-# 
-# Please asks the tutors for help.
+#
+# Please asks the instructors for help.
+#
+# Feel free to work in pairs during the pratical sessions.
+#
+# Not all of your questions will be answered but we will help as much as we can.
+#
+# Good luck.
 #
 ##############################################
 
@@ -47,21 +57,53 @@
 
 # Outline of Activities #
 
-# The workshop is based around a series of activities that involve the use of R for performing statistical analyses of administrative data:
+# The workshop is based around a series of activities that involve the use of R for organising and enabling administrative data for statistical analysis:
+
 #	1. Getting Started with R: a quick introduction to data types, structures and formats
-#	2. Fundamental Statistical Concepts: performing rudimentary data analyses e.g. crosstabulations, summary statistics, hypotheses tests
-#	3. Statistical Models: how to estimate three "vanilla" regression models - linear, logistic and count (Poisson)
-#	4. Longitudinal Data Analysis: how to estimate models that account for data containing repeated obervations or clusters
-#	5. Analysing Durations: how to analyse outcomes where the unit of observation is time or a duration 
-#	6. Modelling Trends: an introduction to time-series analysis
-#	7. Hackathon: two blocks of time where participants will tackle a data analysis challenge using administrative data
 
-# The aim of the workshop is to equip you with a proficiency in predictive analytics using R as rapidly and painlessly as possible.
+#	2. Organising Variables and Measures: how to import and examine data, and handle various types of variables
 
-# Therefore, be good to yourself: we explore a multitude of useful modelling techniques that often take a semester to cover. 
+#	3. Linking and Shaping Data: how to merge and append multiple sources of data
 
-# You likely won't learn everything first time (if you do come speak to us about a teaching job!).
+#	4. Dealing with Temporal Data: tools and techniques for working with dates
 
+#	5. Harvesting Web-based Data: how to use Python for accessing information from websites and online databases (APIs)
+
+#	6. Automating Data Wrangling Operations: how to improve the efficiency of your code through loops and functions
+
+#	7. Hackathon: two blocks of time where participants will tackle a data wrangling challenge using administrative data
+
+
+##############################################
+
+
+##############################################
+#
+#
+# We suggest that you make a copy of this file.
+#
+#
+# ##############################################
+# # IT IS IMPORTANT THAT YOU READ THIS HANDOUT #
+# # AND FOLLOW THE R FILE LINE BY LINE! #
+# ##############################################
+# 
+# The file is sequential. It MUST be run line by line. 
+# Many of the commands will NOT run if earlier lines of commands have not been executed.
+#
+# Anotate your new copy of the file as you work through it with your own notes 
+# (use "#" to comment out your notes).
+#
+#
+# Throughout the file there are markers requiring your input:
+#	- TASK: a coding task for you to complete (e.g. create new variables)
+#	- QUESTION: a question regarding your interpretation of some code or a technique (e.g. what is the above loop doing?)
+#	- EXERCISE: a data wrangling challenge for you to complete at the end of an activity
+#
+# 
+# ON WITH THE SHOW!
+#
+#
 ##############################################
 
 
@@ -75,7 +117,7 @@
 
 # Open RStudio and follow these instructions:
 # 	- File > New Project
-#	  - Create project directory
+#	- Create project directory
 
 getwd() # tells us the current working directory i.e. workspace
 # setwd("C:/Users/mcdonndz-local/Desktop/temp") # set the working directory to a specified directory; however we have no need to
@@ -108,15 +150,29 @@ file.info("./data_raw/sampdata.csv") # displays some basic file information
 
 # TASK: move the files from the workshop Dropbox folder to the "data_raw" directory you just created.
 
+
 # 0.2 Installing Packages
 
-install.packages("car")
-install.packages("aod")
-install.packages("haven")
-install.packages("ResourceSelection")
-##
-# INSTALL PACKAGES SIMILARLY TO DATA VIZ
-##
+# The real power of using R for data wrangling and analysis comes from the universe of user-written packages that are available.
+
+# This is both a blessing and a curse: a blessing because it is unlikely you won't be able to find a function you need for your analysis;
+# a curse because it adds a bit of administrative burden to your workflow (i.e. find a package, install it, load it, use it). Also,
+# help documentation is wildly inconsistent across packages. 
+
+# A package only needs to be installed once, but you will need to load it in every time you launch an R session.
+my_packages <- c("tidyverse", "car", "haven") # create a list of desired packages
+
+install.packages(my_packages, repos = "http://cran.rstudio.com") # install packages from the CRAN repository
+
+installed.packages() # check which packages have been installed
+
+.libPaths() # check which folder the packages are downloaded to
+
+
+# 0.3 Loading Packages
+
+library(tidyverse)
+
 
 ##############################################
 
