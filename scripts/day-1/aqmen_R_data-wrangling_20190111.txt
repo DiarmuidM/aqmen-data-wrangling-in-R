@@ -59,7 +59,7 @@
 
 # The workshop is based around a series of activities that involve the use of R for organising and enabling administrative data for statistical analysis:
 
-#	1. Getting Started with R: a quick introduction to data types, structures and formats [ACT001]
+#	1. Getting Started with R: a quick introduction to the R programming language and various data types [ACT001]
 
 #	2. Organising Variables and Measures: how to import and examine data, and handle various types of variables [ACT002]
 
@@ -110,6 +110,7 @@
 
 
 ##############################################
+
 
 # 0. Software Demonstration #
 
@@ -187,7 +188,7 @@ installed.packages() # check which packages have been installed
 
 # 0.3 Loading Packages #
 
-library(tidyverse) load in the "tidyverse" package of data wrangling functions
+library(tidyverse) # load in the "tidyverse" package of data wrangling functions
 ?tidyverse
 vignette("tidyverse")
 
@@ -203,6 +204,7 @@ vignette("tidyverse")
 #	- installed.packages() - display installed R packages
 #	- .libPaths() - display directory of installed R packages
 #	- library() - load in R package
+#	- vignette() - view examples of how to use the function/package (not available for all functions/packages)
 
 ##############################################
 
