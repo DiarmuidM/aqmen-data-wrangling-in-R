@@ -720,6 +720,20 @@ options(digits=3) # change a specific option (i.e. number of digits to print on 
 options(max.print = 9999) # set maxmimum number of rows to print to the console as 9999
 
 
+# 1.11 Data Wrangling Examples #
+
+# Congratulations on getting through the technical (boring) bit of the activity. To whet your appetite, here are
+# some examples of the techniques you will learn over the course of the workshop.
+
+# Import data
+
+# Export data
+
+# Create a data frame
+
+# ETC
+
+
 # 2. 
 
 
