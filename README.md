@@ -6,7 +6,7 @@
 
 # Data Wrangling - Organising and Enabling Data
 
-### R and Python Workshop (July 2018)
+### R and Python Workshop (March 2019)
 
 ### A three day hands-on workshop led by Dr Diarmuid McDonnell and Professor Vernon Gayle, University of Edinburgh.
 
