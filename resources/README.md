@@ -18,6 +18,9 @@ Peng, R. D. (2015) R Programming for Data Science.
 [https://www.cs.upc.edu/~robert/teaching/estadistica/rprogramming.pdf](https://www.cs.upc.edu/~robert/teaching/estadistica/rprogramming.pdf) <br>
 _A short guide to the more programmatic aspects of R, though there are a number of sections on data wrangling._
 
+Sanchez, G. (2019) Handling Strings with R. [http://www.gastonsanchez.com/r4strings/](http://www.gastonsanchez.com/r4strings/) <br>
+_Very good treatment of dealing with strings in R, especially the use of regular expressions._
+
 #### Python
 
 VanderPlas, J. (2016) Python Data Science Handbook: Essential Tools for Working with Data.
@@ -34,7 +37,24 @@ _A practical guide to the data analysis workflow._
 
 #### Courses
 
+Data Scientist with R. [https://www.datacamp.com/tracks/data-scientist-with-r](https://www.datacamp.com/tracks/data-scientist-with-r) <br>
+_DataCamp offer a multitude of courses on R and data science, some of which are free._
+
+Analytics Vidhya Data Science Courses. [https://courses.analyticsvidhya.com](https://courses.analyticsvidhya.com) <br>
+_Offer a range of data science courses at a reasonable cost._
+
 #### Cheat sheets
 
+RStudio Cheatsheets. [https://www.rstudio.com/resources/cheatsheets/](https://www.rstudio.com/resources/cheatsheets/) <br>
+_These downloadable posters are a handy reference for using R to perform data importation, visualisation, creating apps etc._
+
 #### Useful blogs
+
+Analytics Vidhya Data Science Blog. [https://www.analyticsvidhya.com/blog](https://www.analyticsvidhya.com/blog) <br>
+_Indepth and clear treatment of a range of introductory and more advanced data science topics._
+
+Simply Statistics. [https://simplystatistics.org/](https://simplystatistics.org/) <br>
+_Engaging discussion of data science issues and topics, particularly from an academic/research perspective._
+
+
 
