@@ -1,6 +1,8 @@
-# aqmen-data-wrangling-in-R
+![AQMEN logo](./images/aqmen_logo.png?raw=true "AQMEN Logo")
 
-## This is an AQMEN repository for Data Wrangling - Organising and Enabling Data
+# Data Wrangling - Organising and Enabling Data
+
+## AQMEN: Data Science Training for Social Research, Business and Industry
 
 ### R and Python Workshop (July 2018)
 
