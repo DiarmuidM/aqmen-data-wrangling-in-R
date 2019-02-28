@@ -1,0 +1,553 @@
+# Data Wrangling in R #
+# Derived from Boehmke (2016), Fogarty (2018), and Grolemund and Wickham (2017)
+
+# Proficiency in marshalling data for the purpose of analysis is a (some would say "the") crucial data science skill in industry and academia.
+
+# Preliminaries #
+
+options(max.print = 9999) # set maxmimum number of rows to print as 9999
+
+
+# Importing Data #
+
+# In this section we focus on importing tabular data stored in text, Excel and R files.
+# R provides a number of base functions for this process (e.g. read.table()), however we will use
+# a package designed specifically for this task: readr. It is faster and its default settings remove the need to specify options.
+
+library(readr)
+?readr
+# readr is a great wee package and it is worth learning more about how it parses a file. See https://r4ds.had.co.nz/data-import.html
+# for a thorough overview of how this package interprets a file and its contents.
+
+# Reading data from csv files
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv")
+str(auto)
+auto
+# read_csv() also has a number of useful options: col_types allows you to specify the data type or class of each column;
+# n_max allows you to read in n rows from the data file.
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", n_max=25)
+str(auto)
+auto # only read in first 25 rows of the data
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", skip=1) # skip the first line in the file; useful
+# when you don't want to import the column headings or if the first line contains text instead of observations.
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", col_names = FALSE)
+# By default read_csv() treats the first line as the column headings; we can override this with 'col_names = FALSE'.
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", na = ".")
+# Tells read_csv() to treat instances of "." as missing.
+
+# Reading data from txt files
+
+auto <- read_delim("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.txt", delim=",", col_names = TRUE)
+str(auto)
+auto
+# Using read_delim() is more appropriate when the delimiter is not a comma (e.g. a hyphen, newline, tilde).
+
+# Reading data from Excel files
+
+library("readxl")
+?readxl
+auto <- read_excel("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.xlsx")
+str(auto)
+auto
+# read_excel() also has a number of useful options: sheet allows you to specify which spreadsheet to read in;
+# col_names allows you to read in specific columns; skip enables you to skip a particular row in the data; 
+# na tells read_excel() how missing values are represented in the data (e.g. na = "999")
+
+auto <- read_excel("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.xlsx", sheet = "Sheet1")
+str(auto)
+auto
+# QUESTION: why is the data frame empty?
+
+# Reading data from R files
+
+# auto <- load(file = "C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.rds") 
+# str(auto)
+# auto
+# # NOT WORKING #
+
+# Reading data from dta files (Stata data sets)
+
+library(haven)
+auto <- read_dta("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.dta")
+# You can use haven to import .sav and .sas files also.
+
+# Dealing with problems
+
+# While readr does a good job at guessing the correct data type of the variables, it is not infallible. This is because it only
+# examines the first 1000 values of a variable in order to make its guess. Issues can also arise when a variable contains lots
+# of missing values. Let's highlight some of these issues using a data set provided by the readr package:
+challenge <- read_csv(readr_example("challenge.csv"))
+problems(challenge)
+# TASK: describe the issue(s) readr is having importing this data set.
+
+# We can specfiy the variable types ourselves using the col_types() function:
+challenge <- read_csv(readr_example("challenge.csv"),
+	col_types = cols(x = col_double(), y = col_date())) # specify the correct column types
+
+
+
+
+# Examining Data #
+
+library(tidyverse)
+installed.packages()
+
+View(auto) # browse the data set
+fix(auto) # edit the data set
+names(auto) # list of variable names
+ncol(auto) # number of columns
+nrow(auto) # number of rows
+
+# Detecting duplicate observations
+
+# Use the unique() or distinct() functions.
+
+# Examining variables
+
+str(auto) # list the variables and their data type
+class(auto$weight) # list the class of the weight variable
+class(auto$foreign) # stored as character data type - we want this to be a factor (categorical) variable
+  auto$foreign <- as.factor(auto$foreign) # coerce the foreign variable to be factor data type
+  levels(auto$foreign)
+  factor(auto$foreign) # that's more like it
+	unclass(auto$foreign)
+
+head(auto) # examine the first few rows of the data set
+tail(auto) # examine the last few rows of the data set
+head(auto$make)
+# Note the use of $col_name suffix to access variables in the data set
+
+summary(auto) # summary statistics for each of the variables
+# TASK: describe the results of this command. What are the differences in the results between
+# different types of variables?
+table(auto$foreign) # frequency table
+
+# Dealing with text data #
+
+# Regular Expressions 
+
+# A regular expression (regex/regexp) is a sequence of characters that form a search pattern
+# and is an extremely useful function for pattern matching with text. Think of it as a grammer for detecting patterns in text.
+# There are base functions in R but we can use the "stringr" package for regex purposes also.
+library(stringr)
+library(tidyverse)
+
+sdata <- state.name # use the built-in dataset "state.name"
+print(sdata)
+str(sdata)
+
+# Basic matching
+
+str_view(sdata, "or") # find text containing the string "or"
+str_view(sdata, ".r.") # find any three-letter string with "r" in the middle
+# Notice how a "." (period) is a special character in regular expressions.
+# QUESTION: how would you search for a "." using regular expressions?
+
+str_view(sdata, "\\.") # search for a "." in the text
+# A backslash is also a special character in regular expressions, hence the need for two of them in the above code.
+# If you want to find a backslash, you need four backslashes in your search term!
+# An alternative is to enclose a special character in []:
+str_view("My text.", "[.]") # find the "." in the string "My text."
+# This approach doesn't work for the following special characters: ] \ ^ and -
+
+# Anchoring
+
+str_view(sdata, "^N") # finds text where "N" is at the beginning of a string
+str_view(sdata, "k$") # finds text where "k" is at the end of a string
+
+# Character classes and alternatives
+
+# What do we do when we want to match more than one character i.e. find "this" or "that" or "those" in a string?
+# Thankfully, regular expressions provide a simple means of doing so (Grolemund & Wickham, 2017):
+# - \d: matches any digit.
+# - \s: matches any whitespace (e.g. space, tab, newline).
+# - [abc]: matches a, b, or c.
+# - [^abc]: matches anything except a, b, or c.
+
+str_view(c("grey", "gray"), "gr(e|a)y") # find "grey" or "gray" i.e. find "gr" followed by an "e" or an "a" and then a "y"
+str_view("I have 0 dogs and 1 wife in my life", "\\d") # find any digit in the string; it only highlights the first instance however
+str_extract_all("I have 0 dogs and 1 wife in my life", "\\d") # returns all digits to the console
+
+str_view(sdata, "[wxyz]") # finds text containing any of these consonants
+
+# Repetition
+
+# Now we focus on how many times a pattern matches:
+x <- "1888 is the longest year in Roman numerals: MDCCCLXXXVIII"
+str_view(x, "CC?") # matches zero or one times
+str_view(x, "CC+") # matches one or more times
+str_view(x, 'C[LX]+')
+# TASK: describe the results of the above command.
+
+# You can also specify the number of matches precisely (Grolemund & Wickham, 2017):
+# - {n}: exactly n
+# - {n,}: n or more
+# - {,m}: at most m
+# - {n,m}: between n and m
+
+# TASK: using the object x, find two instances of the letter "C", three instances of the letter "X", 
+# and one instance of the letter "I".
+
+# Detect matches
+
+x <- c("apple", "banana", "pear")
+str_detect(x, "e") # returns a logical vector of whether the string contains the letter "e"
+
+words # built-in object containing common words
+str_detect(words, "^t")
+sum(str_detect(words, "^t")) # sum of the number of common words that begin with the letter "t"
+
+# QUESTION: how many common words end in either w, x, y or z?
+# TASK: calculate the proportion of common words that contain the letter "q". HINT: use another arithmetic function.
+
+str_subset(words, "x$") # find the subset of words that end in "x"
+str_count(words, "[aeiou]") # returns how many vowels are in each word
+mean(str_count(words, "[aeiou]")) # returns how many vowels are in each word on average
+
+# Let's combine what we've learned with what we know about data frames (tibbles in particular):
+df <- tibble(
+  word = words, 
+  i = seq_along(word)
+) # create a tibble with two columns: each word and a unique id for it
+df
+
+df %>% 
+  filter(str_detect(word, "x$")) # find rows where the values of word end in "x"; this is equivalent to str_subset(words, "x$")
+
+df %>% 
+  mutate(
+    vowels = str_count(word, "[aeiou]"),
+    consonants = str_count(word, "[^aeiou]")
+  )
+# TASK: explore and describe the results of the above command.
+
+
+# Looking for more string manipulation functions? Look no further than the `stringi` package`, 
+# which has >200 functions. Have fun!
+
+# Data Transformation #
+
+# Wickham's dictum: Tidy datasets are all alike, but every messy dataset is messy in its own way.
+
+# In this section we focus on the many tasks associated with wrangling or marshalling your data into a format suitable for analysis.
+# In R-speak, this means constructing a "tidy" data set. This format will be familiar to you. A tidy data set is one that:
+#	- is rectangular or tabular:
+#		o every value has its own cell
+#		o every variable has its own column
+#		o every observation has its own row
+# Social scientists are fluent in this format but as the known universe of data expands, corraling untidy data into a tidy format
+# will be a necessary skill. Examples of untidy data sources include text corpora, information scraped from websites etc. However,
+# even "recognisable" data sources can still be untidy.
+
+# Tidying your data
+
+# Let's look at some examples of representing data in multiple formats:
+table1
+table2
+table3
+# QUESTION: which data set is "tidy" and why?
+
+# Now let's look at the tidyr package and how it can be used to address two common issues:
+#	- one variable is spread across multiple columns
+#	- one observation is spread across multiple rows
+
+# Gathering
+
+# The gather() function helps us address the first issue above. An example would be when there are multiple income variables
+# e.g. inc2011, inc2012 etc. In this instance it would be better to "gather" these values as follows:
+incdata <- tibble(pid = 1:3, inc2011 = c(10000, 25000, 98000), inc2012 = c(11000, 30000, 98000), 
+	inc2013 = c(10000, 0, 100000), inc2014 = c(15000, 21000, 101000)) # create a tibble of sample data
+incdata
+
+inc_tidy <- incdata %>%
+	gather(inc2011:inc2014, key = "year", value = "annual income")
+inc_tidy
+# gather() takes three parameters:
+#	1. the variables you wish to gather the values of
+#	2. the name of the variable that distinguishes values of the gathered variables (key)
+#	3. the name of the variables that stores the values of the gathered variables (value)
+
+# Spreading
+
+# This is the opposite of gathering, and addresses the second issue above.
+table2 # here the type column actually houses two variables: cases and population
+
+tab2_tidy <- table2 %>%
+	spread(key = type, value = count)
+# spread() takes two parameters:
+#	1. the name of the variable containing multiple variables (key)
+#	3. the name of the variable that stores the values of the key variable (value)
+
+# Perhaps you've already noticed what we're doing goes by another name: reshaping your data to long or wide format.
+# That is, making our data narrower and longer, or wider and shorter.
+# Having data in long format is necessary for conducting many types of longitudinal statistical modelling, so it is best to comfortable with 
+# gathering and spreading ASAP.
+
+# Missing values
+
+# Think of missing values as being of two types:
+#	1. Explicitly missing
+#	2. Implicitly missing
+# The former is the presence of an absence (i.e. missing values are flagged as NA or 99), the latter the absence of a presence (i.e.
+# we do not possess an observation for that person for whatever reason).
+
+# We can make implicit missing values explicit using the complete() function:
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+) # create a sample data set
+
+comp_stocks <- stocks %>% 
+  complete(year, qtr)
+# QUESTION: what effect has complete() had on the original tibble?
+
+# Storing data as tibbles
+
+library(nycflights13) # load in flights data
+library(tidyverse) # load in dplyr via the tidyverse package
+
+# A tibble (sounds like how an aristcrat pronounces "table") is a data frame that is very well suited to the tidyverse suite of functions
+# It has a number of properties that makes it preferable to the use of base R data frames e.g. it doesn't convert strings to factors or change the names of variables.
+
+# Creating tibbles
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv")
+str(auto)
+
+as_tibble(auto)
+str(auto)
+
+# Viewing tibbles
+
+auto 
+# tibble automatically restricts the display of the data to ten rows and as many columns that fit the window. It also displays
+# the variable type underneath the variable name (e.g. dbl, chr, date, int).
+
+print(auto, n = Inf, width = Inf) # n controls the number of rows, and width the number of columns; 'Inf' tells print to display
+# all rows and columns.
+# Surpressing data display is a good default when working large data sets. However, you can override the default settings and
+# tell RStudio to always print the entire tibble:
+# options(tibble.print_min = Inf)
+# options(tibble.width = Inf)
+
+# Accessing tibble variables
+
+auto$price # by name
+auto[["price"]] # by name
+auto[[1]] # by column position
+
+
+
+# There are six core functions (or verbs) that form the essence of data transformation when using dplyr:
+#	1. filter() -> pick certain observations or rows
+#	2. select() -> pick certain variables or columns
+#	3. mutate() -> create new variables
+#	4. arrange() -> reorder observations or rows
+#	5. summarise() -> produce summary statistics for a given set of variables
+#	6. group_by() -> collapse observations or rows into groups (e.g. by ethicity, gender, local authority etc)
+
+# All six work in the same manner:
+#	1. take a data frame as input
+#	2. require one or more variables in order to perform the function
+# 	3. produce a new data frame as a result of executing the function
+
+# 5.1.1 Filtering
+
+filter(flights, month == 1, day == 1) # include observations for January 1st
+# TASK: assign the result of this command to a new object and save as a csv file to the data_raw folder.
+
+# Notice how including more than one argument is equivalent to saying "month == 1 AND day == 1". We could also specify the command
+# as follows:
+filter(flights, month == 1 & day == 1)
+filter(flights, month == 1 | day == 1)
+# QUESTION: how are the results of the second command different from the first? 
+
+# 5.1.2 Selecting
+
+select(flights, year, month, day) # select these three variables
+select(flights, year:day) # select all variables between year and day (inclusive)
+select(flights, -(year:day)) # select all variables except those from year to day (inclusive)
+
+# There are a number of additional functions that help you refine your selection of variables:
+select(flights, starts_with("y")) # select all variables that begin with the letter "y"
+select(flights, contains("ay")) # select all variables that contain the characters "ay" (in that order)
+# You can also employ regular expressions with select(); see the help documentation for more information.
+
+# 5.1.3 Arranging
+
+arrange(flights, year, month, day) # reorder observations by year, then by month, then by day (in ascending order)
+arrange(flights, desc(year, month, day)) # reorder observations by year, then by month, then by day (in descending order)
+
+# 5.1.4 Mutating
+
+mutate(flights, gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60) # create two new variables in the flights data set
+
+# 5.1.5 Summarising
+
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE)) # calculate the mean of dep_delay, ignoring missing values for ths value
+
+# Summarise is much more useful when we combine it with group_by():
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+# TASK: describe the results produced by the above commands.
+
+# Similar to select(), there are a number of additional summary functions that are worth knowing:
+summarise(flights, av_delay = median(dep_delay), iqr_delay = iqr(dep_delay)) # median and interquartile range of departure delays
+summarise(flights, airlines = n_distinct(carrier)) # number of unique airlines
+# There are many more that we do not have the time to cover; see the help documentation for more information.
+
+# 5.1.6 Grouping
+
+# group_by() collapses observations into groups in order to produce summary statistics (e.g. mean age by ethnicity); it is best used in combination
+# with other dplyr functions.
+
+flights_sum <- group_by(flights, year, dest) %>%
+	summarise(count = n())
+
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10) # find the flights with the worst arrival delays
+
+popular_dests <- flights %>% 
+  group_by(dest) %>% 
+  filter(n() > 365) # find the most popular destinations
+popular_dests
+
+# Piping #
+
+# No, not the Scottish kind... Think of piping as a process for building summary tables. It takes
+# data as an input, transfers it into some functions, and converts it into some results (like a pipeline). 
+# In the words of Healy (2019):
+# "A pipeline is typically a series of operations that do one or more of four things:
+#   1. Group the data into the nested structure we want for our summary, such as “Religion by Region” or “Authors by Publications by Year”.
+#   2. Filter or select pieces of the data by row, column, or both. This gets us the piece of the table we want to work on.
+#   3. Mutate the data by creating new variables at the current level of grouping. This adds new columns to the table without aggregating it.
+#   4. Summarize or aggregate the grouped data. This creates new variables at a higher level of grouping. For example we might calculate means with mean() or counts with n(). This results in a smaller, summary table, which we might do more things on if we want."
+# The pipe operator = %>% (Ctrl + Shift + m)
+
+vignette("dplyr") # explore some use cases employing the 'dplyr' commands
+
+### REPLACE THIS EXAMPLE AND UPDATE DESCRIPTION ####
+# Let's create a crosstab of religion by region:
+rel_by_reg <- gss_sm %>% 
+  group_by(bigregion, religion) %>%
+  summarize(N = n()) %>%
+  mutate(freq = N / sum(N), pct = round((freq*100), 0))
+
+View(rel_by_reg) # display the summary table we created
+
+# There's a lot going on in the above command, so let's take it piece-by-piece:
+#   1. we create a new object
+#   2. state which data set we are wanting to use
+#   3. take that data and group it by region and religion (similar to the table() command earlier)
+#   4. summarise this table by creating a new column (N) which is a count of observations
+#   5. create two new variables: proportion and percentage of observations in each category
+
+# If you were apprehensive about learning or using R, the above command is a valid reason:
+# it is more cumbersome than performing the same task in Stata or SPSS, and requires us
+# to explicitly delineate the logic and steps of producing the summary table.
+
+# There are user-written packages that can produce crosstabs more efficiently than the above
+# method (e.g. 'crosstab' from the 'descr' package) but using the pipe operator in this
+# way is a very common task in R and you just have to get used to it :)
+
+
+
+
+# Remove Non-numeric Values
+
+# There are times when non-numeric characters are included in the values of a numeric variable
+auto2 <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto2.csv")
+str(auto2$price) # stored as character data type
+
+auto2$price <- as.numeric(gsub("[$,]", "", auto2$price)) # replace instances of "$" with a blank space ""
+# TASK: check the class of the price variable - is it numeric or character?
+
+# Subsetting Data
+
+auto_sub <- subset(auto, select = c(make, price, foreign)) # keep three variables
+auto_sub
+
+auto_sub <- subset(auto, select = c(make:headroom)) # keep a range of variables
+auto_sub
+# You can combine the use of "," and ":" to select specific variables and a range in the one use of subset()
+
+# Recoding Variables
+
+# We will use the recode() function provided by the car package.
+
+install.packages("car")
+library(car)
+
+# Renaming Variables
+
+
+# Joining Data Sets #
+
+# Sometimes the data we need for an analysis are stored in separate data sets: either we need additional variables for a set of
+# observations, or additional observations for the same set of variables. This sounds a little abstract so let's look at examples
+# using administrative data on the top 300 charities in Scotland (by income). This is an open data set provided by the Scottish
+# Charity Regulator (OSCR): [https://www.oscr.org.uk/about-charities/search-the-register/the-300-highest-income-charities]
+
+# Merging data
+
+# The syntax (base R):
+# merged_data <- merge(df1, df2, by="common id variable"), where df1 = data set #1, df2 = data set #2, "common id variable" = unique
+# identifier of an observation. The data sets must be sorted by this id variable prior to merging.
+# dplyr
+
+chardata_1 <- read_csv("./data/scotchar_top300_details.csv")
+chardata_1 <- arrange(chardata_1, `Charity Number`)
+View(chardata_1) # contains organisational characteristics for top 300 charities
+
+chardata_2 <- read_csv("./data/scotchar_top300_income.csv")
+chardata_2 <- arrange(chardata_2, `Charity Number`)
+View(chardata_2) # contains income information for top 300 charities
+
+top300 <- merge(chardata_1, chardata_2, by = "`Charity Number`") # we only need Charity Number to merge but you can specify additional variables
+str(top300)
+names(top300) # now we have a single data set containing organisational and financial information for the charities
+
+# Notice how we enclosed the variable "Charity Number" in backticks (i.e. "``"). This is because R (and other languages)
+# struggle to parse variable names that contain spaces. There are a number of ways of dealing with this issue:
+# 1. The way we have here.
+# 2. Convert the data set to a tibble data frame using "tbl_df(chardata_1)".
+# 3. Use the janitor package's clean_names() function.
+# 4. Use the rename() function from dplyr to change the variable name(s).
+
+# Appending data
+
+# Note that variable names must be the same in across all data sets being appended.
+
+mydata6080 = read_csv("http://www.princeton.edu/~otorres/mydata6080.csv") # sample data from 1960 to 1989
+mydata9020 = read_csv("http://www.princeton.edu/~otorres/mydata9020.csv") # sample data from 1990 to 2013
+
+View(mydata6080)
+View(mydata9020)
+
+mydata = rbind(mydata6080, mydata9020)
+View(mydata)
+
+# Reshaping Data #
+
+# To long format
+
+fredts_m <- fredts %>% select(date, sp500_i, monbase_i) %>%
+    gather(key = series, value = score, sp500_i:monbase_i)
+
+
+# Final Thoughts #
+
+# Congratulations on progressing through the workshop. Our aim was to equip you with a proficiency in data wrangling using R as rapidly and painlessly as possible.
+# While you have covered a great deal of material and skills, there is a bigger and badder world of R programming and wrangling out there.
+# Here are some suggestions for where you might go next in your skills development:
+#	- Wanting to work with big data? Collect, append and summarise 000s of data sets? Run simulations? It could be worth engaging in code
+#		optimisation. See the Profiling R Code chapter in Peng (2015)
+#

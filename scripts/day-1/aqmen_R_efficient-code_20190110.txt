@@ -1,0 +1,491 @@
+# Creating Efficient & Readable Code in R
+# Boehmke (2016)
+
+# It is vital that we write code that adheres to the "four pillars of wisdom":
+#	- efficient (simplify and rationalise your code as much as possible - "Don't Repeat Yourself")
+#	- effective (minimise information loss by using stored results and other features of the software)
+# 	- transparent (it is obvious what you have done, why, how and when)
+#	- reproducible (code that is legible and documented to a high standard)
+
+# There are a number of options available to us in achieving our aims: functions, loops and other time-saving approaches.
+
+# Functions #
+
+# Present Value function i.e. future value of investment divided by interest rate to the power of time
+PV <- function(FV, r, n) {
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+body(PV) # the code that is executed when the function is called
+formals(PV) # the arguments the function needs to execute
+environment(PV) # the environment in which the function exists (i.e. global means it can be called from elsewhere in the script, other scripts)
+
+# Call the function
+PV(1000, .05, 10)
+# QUESTION: how does the function know which argument is which?
+
+# We can specify the values of the arguments as objects outside the function:
+FV <- 1000
+r <- .05
+n <- 10
+
+PV(FV, r, n)
+
+# We can return multiple outputs from a function as a vector or list:
+calculations <- function(x, y) {
+  val1 <- x * y
+  val2 <- 2*x + 2*y
+  val3 <- x / y
+  c(val1, val2, val3)
+}
+
+calculations(10, 5)
+# TASK: remove the final line of code from the body of the function; what result is returned when the function is called?
+
+# Dealing with invalid parameters
+# What happens our PV function if we do not pass it numeric arguments?
+PV(10000, "5", "apple")
+
+# Let's add an if statement and message to the user of the function:
+PV <- function(FV, r, n) {
+  if(!is.numeric(FV) | !is.numeric(r) | !is.numeric(n)){
+    stop('This function only works for numeric inputs!\n',
+         'You have provided objects of the following classes:\n',
+         'FV: ', class(FV), '\n',
+         'r: ', class(r), '\n',
+         'n: ', class(n))
+  }
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+PV(10000, "5", "apple")
+
+# Finally, let's deal with missing values for our arguments
+FV <- c(1000, 10000, NA, 100000, NA)
+PV(FV, .03, 25) # returns NA results when FV is missing
+
+# Let's add one more if statement to deal with missing values:
+PV <- function(FV, r, n, na.rm = FALSE) {
+  if(!is.numeric(FV) | !is.numeric(r) | !is.numeric(n)){
+    stop('This function only works for numeric inputs!\n',
+         'You have provided objects of the following classes:\n',
+         'FV: ', class(FV), '\n',
+         'r: ', class(r), '\n',
+         'n: ', class(n))
+  }
+  if(na.rm == TRUE) {
+    FV <- FV[!is.na(FV)]
+  }
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+PV(FV, .03, 25, na.rm = TRUE) # no longer displays NA results
+
+# If you like, you can save your function in a R script and call it from other scripts using the
+# 'source("script_name.R")' command, and then execute the function as normal.
+# TASK: save the PV function as an R script, create a blank R script and call the function.
+
+
+# Loop Control Statements #
+# Often we would like to execute commands only if a particular condition is true, or only
+# for a range of values, or to perform a task until a certain condition is met.
+
+# If statements
+# general syntax:
+# if (test_expression) {
+#   statement
+# }
+
+# Test whether any values in a vector are negative:
+x <- c(8, 3, -2, 5, -5, 20, 0)
+
+if(any(x < 0)){
+  print("x contains negative numbers")
+}
+# QUESTION: what is the above if statement doing?
+
+# We can specify what to do if the condition is false using the "else" command:
+y <- c(8, 3, 2, 5)
+
+if(any(y < 0)){
+  print("y contains negative numbers")
+} else{
+  print("y contains all positive numbers")
+}
+
+# We can test if multiple conditions are true using the "else if" command:
+x <- 7
+
+if(x >= 10){
+  print("x exceeds acceptable tolerance levels")
+} else if(x >= 0 & x < 10){
+  print("x is within acceptable tolerance levels")
+} else {
+  print("x is negative")
+}
+
+# For loops
+# These are used to execute commands a certain number of times.
+# syntax of for loop
+for(i in 1:100) {
+  print(i)
+}
+
+# A usefule tip when using for loops is to create an empty object and populate it
+# with the results of the loop, rather than create and populate the object within the loop.
+x <- vector(mode = "numeric", length = 10)
+x
+
+for (i in 10) {
+  x <- rnorm(10, mean = 100)
+  print(x)
+}
+# QUESTION: what is the above loop doing?
+
+# For loop to populate an empty matrix:
+my.mat <- matrix(NA, nrow = 5, ncol = 5)
+
+for(i in 1:ncol(my.mat)){
+  my.mat[, i] <- rpois(5, lambda = i)
+}
+my.mat
+
+# We can terminate a loop using the 'break' command:
+x <- 1:10
+x
+
+for (i in x) {
+  if (i == 3){
+    break
+  }
+  print(i)
+}
+
+# We can skip an iteration using the 'next' command:
+for (i in x) {
+  if (i == 3){
+    next
+  }
+  print(i)
+}
+# While loops
+# These loops test whether a condition is true; if it is then the loop executes until
+# the condition is no longer true.
+
+# syntax of while loop
+counter <- 10
+while(counter < 10) {
+  print(counter)
+  counter <- counter + 1
+}
+# TASK: write down the differences and advantages of a while loop compared to a for loop.
+
+
+# Apply function #
+# The apply() function is used to apply a function to the rows or columns of a data frame,
+# matrix or array.
+# syntax of apply function
+# apply(x, MARGIN, FUN, ...)
+
+head(mtcars) # examine the first couple of rows of the mtcars data set
+apply(mtcars, 2, mean) # calculate the mean of each column in the data set
+# The MARGIN argument refers to the element of the data set we want to perform the function on:
+# for the mtcars data set "2" refers to the columns.
+
+apply(mtcars, 1, mean) # calculate the mean of each row in the data set; this approach
+# is nonsensical in this example as the variables all measure different concepts.
+# However, it is easy to see how this would be useful when each column measures the same
+# concept over different periods of time e.g. an individual's income over ten years.
+
+apply(mtcars, 2, quantile, probs = c(0.10, 0.25, 0.50, 0.75, 0.90)) # produce quantiles for each column
+
+# Let's add the mean of each row as a new column
+mtcars$mn_row <- apply(mtcars, 1, mean)
+mtcars
+str(mtcars)
+attributes(mtcars)
+# Notice how the apply() function negates the need to loop over every row in order to
+# calculate the mean - this is one of the strenghts of the function.
+
+# There are plenty of other versions of apply() (e.g. tapply(), lapply()) that can be
+# executed on other data structures (e.g. lists, vectors). Take a look at the help files
+# for more information i.e. ?tapply()
+
+# Finally, Base R provides a number of simplified apply() functions for common tasks:
+colSums(mtcars) # is a more efficient way of executing the command below...
+apply(mtcars, 2, sum)
+
+
+# The Pipe Operator (%>%)
+# A further way of simplyfing your code is with the use of the pipe operator (%>%), which
+# enables you to pass the results of one command to a function. Let's look at an example:
+library("magrittr") # load in the package containing the pipe operator
+library("dplyr")
+
+colSums(mtcars)
+mtcars %>% colSums() # pass the mtcars object to the colSums() function.
+# The advantage of %>% may not be immediately obvious for short lines of code, but its
+# efficiency becomes clear when executing multiple functions in one go.
+
+head(mtcars)
+
+aggresults <- mtcars %>%
+  filter(carb > 1) %>%
+  group_by(cyl) %>%
+  summarise(Avg_mpg = mean(mpg)) %>%
+  arrange(desc(Avg_mpg))
+# TASK: describe each line of the code i.e. what it is doing and then passing to the next function.
+
+aggresults
+
+# Perform a linear regression and summarise the results
+mtcars %>%
+  filter(carb > 1) %>%
+  lm(mpg ~ cyl + hp, data = .) %>%
+  summary()
+# Note the inclusion of 'data = .' in the lm() function. In the words Boehmke (2016, 206):
+# "# Present Value function i.e. future value of investment divided by interest rate to the power of time
+PV <- function(FV, r, n) {
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+body(PV) # the code that is executed when the function is called
+formals(PV) # the arguments the function needs to execute
+environment(PV) # the environment in which the function exists (i.e. global means it can be called from elsewhere in the script, other scripts)
+
+# Call the function
+PV(1000, .05, 10)
+# QUESTION: how does the function know which argument is which?
+
+# We can specify the values of the arguments as objects outside the function:
+FV <- 1000
+r <- .05
+n <- 10
+
+PV(FV, r, n)
+
+# We can return multiple outputs from a function as a vector or list:
+calculations <- function(x, y) {
+  val1 <- x * y
+  val2 <- 2*x + 2*y
+  val3 <- x / y
+  c(val1, val2, val3)
+}
+
+calculations(10, 5)
+# TASK: remove the final line of code from the body of the function; what result is returned when the function is called?
+
+# Dealing with invalid parameters
+# What happens our PV function if we do not pass it numeric arguments?
+PV(10000, "5", "apple")
+
+# Let's add an if statement and message to the user of the function:
+PV <- function(FV, r, n) {
+  if(!is.numeric(FV) | !is.numeric(r) | !is.numeric(n)){
+    stop('This function only works for numeric inputs!\n',
+         'You have provided objects of the following classes:\n',
+         'FV: ', class(FV), '\n',
+         'r: ', class(r), '\n',
+         'n: ', class(n))
+  }
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+PV(10000, "5", "apple")
+
+# Finally, let's deal with missing values for our arguments
+FV <- c(1000, 10000, NA, 100000, NA)
+PV(FV, .03, 25) # returns NA results when FV is missing
+
+# Let's add one more if statement to deal with missing values:
+PV <- function(FV, r, n, na.rm = FALSE) {
+  if(!is.numeric(FV) | !is.numeric(r) | !is.numeric(n)){
+    stop('This function only works for numeric inputs!\n',
+         'You have provided objects of the following classes:\n',
+         'FV: ', class(FV), '\n',
+         'r: ', class(r), '\n',
+         'n: ', class(n))
+  }
+  if(na.rm == TRUE) {
+    FV <- FV[!is.na(FV)]
+  }
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+PV(FV, .03, 25, na.rm = TRUE) # no longer displays NA results
+
+# If you like, you can save your function in a R script and call it from other scripts using the
+# 'source("script_name.R")' command, and then execute the function as normal.
+# TASK: save the PV function as an R script, create a blank R script and call the function.
+
+
+# Loop Control Statements #
+# Often we would like to execute commands only if a particular condition is true, or only
+# for a range of values, or to perform a task until a certain condition is met.
+
+# If statements
+# general syntax:
+# if (test_expression) {
+#   statement
+# }
+
+# Test whether any values in a vector are negative:
+x <- c(8, 3, -2, 5, -5, 20, 0)
+
+if(any(x < 0)){
+  print("x contains negative numbers")
+}
+# QUESTION: what is the above if statement doing?
+
+# We can specify what to do if the condition is false using the "else" command:
+y <- c(8, 3, 2, 5)
+
+if(any(y < 0)){
+  print("y contains negative numbers")
+} else{
+  print("y contains all positive numbers")
+}
+
+# We can test if multiple conditions are true using the "else if" command:
+x <- 7
+
+if(x >= 10){
+  print("x exceeds acceptable tolerance levels")
+} else if(x >= 0 & x < 10){
+  print("x is within acceptable tolerance levels")
+} else {
+  print("x is negative")
+}
+
+# For loops
+# These are used to execute commands a certain number of times.
+# syntax of for loop
+for(i in 1:100) {
+  print(i)
+}
+
+# A usefule tip when using for loops is to create an empty object and populate it
+# with the results of the loop, rather than create and populate the object within the loop.
+x <- vector(mode = "numeric", length = 10)
+x
+
+for (i in 10) {
+  x <- rnorm(10, mean = 100)
+  print(x)
+}
+# QUESTION: what is the above loop doing?
+
+# For loop to populate an empty matrix:
+my.mat <- matrix(NA, nrow = 5, ncol = 5)
+
+for(i in 1:ncol(my.mat)){
+  my.mat[, i] <- rpois(5, lambda = i)
+}
+my.mat
+
+# We can terminate a loop using the 'break' command:
+x <- 1:10
+x
+
+for (i in x) {
+  if (i == 3){
+    break
+  }
+  print(i)
+}
+
+# We can skip an iteration using the 'next' command:
+for (i in x) {
+  if (i == 3){
+    next
+  }
+  print(i)
+}
+# While loops
+# These loops test whether a condition is true; if it is then the loop executes until
+# the condition is no longer true.
+
+# syntax of while loop
+counter <- 10
+while(counter < 10) {
+  print(counter)
+  counter <- counter + 1
+}
+# TASK: write down the differences and advantages of a while loop compared to a for loop.
+
+
+# Apply function #
+# The apply() function is used to apply a function to the rows or columns of a data frame,
+# matrix or array.
+# syntax of apply function
+# apply(x, MARGIN, FUN, ...)
+
+head(mtcars) # examine the first couple of rows of the mtcars data set
+apply(mtcars, 2, mean) # calculate the mean of each column in the data set
+# The MARGIN argument refers to the element of the data set we want to perform the function on:
+# for the mtcars data set "2" refers to the columns.
+
+apply(mtcars, 1, mean) # calculate the mean of each row in the data set; this approach
+# is nonsensical in this example as the variables all measure different concepts.
+# However, it is easy to see how this would be useful when each column measures the same
+# concept over different periods of time e.g. an individual's income over ten years.
+
+apply(mtcars, 2, quantile, probs = c(0.10, 0.25, 0.50, 0.75, 0.90)) # produce quantiles for each column
+
+# Let's add the mean of each row as a new column
+mtcars$mn_row <- apply(mtcars, 1, mean)
+mtcars
+str(mtcars)
+attributes(mtcars)
+# Notice how the apply() function negates the need to loop over every row in order to
+# calculate the mean - this is one of the strenghts of the function.
+
+# There are plenty of other versions of apply() (e.g. tapply(), lapply()) that can be
+# executed on other data structures (e.g. lists, vectors). Take a look at the help files
+# for more information i.e. ?tapply()
+
+# Finally, Base R provides a number of simplified apply() functions for common tasks:
+colSums(mtcars) # is a more efficient way of executing the command below...
+apply(mtcars, 2, sum)
+
+
+# The Pipe Operator (%>%)
+# A further way of simplyfing your code is with the use of the pipe operator (%>%), which
+# enables you to pass the results of one command to a function. Let's look at an example:
+library("magrittr") # load in the package containing the pipe operator
+library("dplyr")
+
+colSums(mtcars)
+mtcars %>% colSums() # pass the mtcars object to the colSums() function.
+# The advantage of %>% may not be immediately obvious for short lines of code, but its
+# efficiency becomes clear when executing multiple functions in one go.
+
+head(mtcars)
+
+aggresults <- mtcars %>%
+  filter(carb > 1) %>%
+  group_by(cyl) %>%
+  summarise(Avg_mpg = mean(mpg)) %>%
+  arrange(desc(Avg_mpg))
+# TASK: describe each line of the code i.e. what it is doing and then passing to the next function.
+
+aggresults
+
+# Perform a linear regression and summarise the results
+mtcars %>%
+  filter(carb > 1) %>%
+  lm(mpg ~ cyl + hp, data = .) %>%
+  summary()
+# Note the inclusion of 'data = .' in the lm() function. In the words Boehmke (2016, 206):
+# "When using the %>% operator the default is the argument that you are forwarding will go in as the first argument of the function
+that follows the %>%. However, in some functions the argument you are forwarding does not go
+into the default first position. In these cases, you place “.” to signal which argument you want the
+forwarded expression to go to."
+# In our example above, the result of the filter() function is a data set, which is then provided as the second argument in the 
+# lm() function.
