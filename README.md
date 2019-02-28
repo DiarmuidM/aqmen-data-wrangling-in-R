@@ -4,11 +4,11 @@
 
 <br>
 
-# Data Wrangling - Organising and Enabling Data
+<h1 align="center">Data Wrangling - Organising and Enabling Data</h1>
 
-### R and Python Workshop (March 2019)
+<h3 align="center">R and Python Workshop (March 2019)</h3>
 
-### A three day hands-on workshop led by Dr Diarmuid McDonnell and Professor Vernon Gayle, University of Edinburgh.
+<h3 align="center">A three day hands-on workshop led by Dr Diarmuid McDonnell and Professor Vernon Gayle, University of Edinburgh.</h3>
 
 <br>
 
