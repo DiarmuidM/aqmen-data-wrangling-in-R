@@ -1,6 +1,6 @@
 <div align="center">![AQMEN logo]("./images/aqmen_logo.png?raw=true" width=100 height=100)</div?
 
-<div align="center">## AQMEN: Data Science Training for Social Research, Business and Industry</div?
+<div align="center">## AQMEN: Data Science Training for Social Research, Business and Industry</div>
 
 # Data Wrangling - Organising and Enabling Data
 
