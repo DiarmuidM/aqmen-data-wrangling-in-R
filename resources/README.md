@@ -50,6 +50,9 @@ _These downloadable posters are a handy reference for using R to perform data im
 
 #### Useful blogs
 
+R bloggers. [https://www.r-bloggers.com/](https://www.r-bloggers.com/) <br>
+_R news and tutorials submitted by a community of R users._
+
 Analytics Vidhya Data Science Blog. [https://www.analyticsvidhya.com/blog](https://www.analyticsvidhya.com/blog) <br>
 _Indepth and clear treatment of a range of introductory and more advanced data science topics._
 
