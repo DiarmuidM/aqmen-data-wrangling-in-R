@@ -11,7 +11,7 @@ Wickham, H. and Grolemund, G. (2017) R for Data Science: Visualize, Model, Trans
 _A thorough handbook for conducting data wrangling and analysis in R._
 
 Boehmke, B. C. (2016) Data Wrangling with R.
-[https://leanpub.com/datawranglingwithr](https://leanpub.com/datawranglingwithr)
+[https://leanpub.com/datawranglingwithr](https://leanpub.com/datawranglingwithr) <br>
 _An indepth look at data types, structures and formats in R, though little use of real data sets throughout._
 
 Peng, R. D. (2015) R Programming for Data Science. 
@@ -27,7 +27,7 @@ _An indepth treatment of core data science tasks in Python - calculations, data 
 #### Workflow
 
 Gayle, V.J. and Lambert, P.S. (2017) The Workflow: A Practical Guide to Producing Accurate, Efficient, Transparent and Reproducible Social Survey Data Analysis. NCRM Working Paper. NCRM.
-[http://eprints.ncrm.ac.uk/4000/]([http://eprints.ncrm.ac.uk/4000/) <br>
+[http://eprints.ncrm.ac.uk/4000/](http://eprints.ncrm.ac.uk/4000/) <br>
 _A practical guide to the data analysis workflow._
 
 ### Online Resources:
