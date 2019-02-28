@@ -1,4 +1,4 @@
-![AQMEN logo](./images/aqmen_logo.png?raw=true "AQMEN Logo")
+![AQMEN logo](./images/aqmen_logo.png?raw=true | width=100 height=100)
 
 # Data Wrangling - Organising and Enabling Data
 
