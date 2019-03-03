@@ -153,7 +153,7 @@ file.info("./data_raw/sampdata.csv") # displays some basic file information
 
 # TASK: move the files from the workshop Dropbox folder to the "data_raw" directory you just created.
 
-# R functions used in this section:
+# New R functions used in this section:
 
 #	- getwd() - provide working directory location
 #	- c() - create a vector of values or objects
@@ -177,7 +177,7 @@ file.info("./data_raw/sampdata.csv") # displays some basic file information
 
 # A package only needs to be installed once, but you will need to load it in every time you launch an R session.
 
-my_packages <- c("tidyverse", "car", "haven") # create a list of desired packages
+my_packages <- c("tidyverse", "car", "haven", "expss") # create a list of desired packages
 
 install.packages(my_packages, repos = "http://cran.rstudio.com") # install packages from the CRAN repository
 
@@ -192,13 +192,15 @@ library(tidyverse) # load in the "tidyverse" package of data wrangling functions
 ?tidyverse
 vignette("tidyverse")
 
+# TASK: load in the "car", "haven", and "expss" packages.
+
 # A final note about packages: you'll see mention of performing functions or tasks using base R. This means drawing on the functions that come
 # as standard with your version of R. install.packages() and write.csv() are examples of base R functions.
 
 # For the purposes of data wrangling (and most other data analysis tasks, frankly), we will not use base R functions; the reasons will become clear
 # as we progress but it is worth noting that there is more than one way to skin a cat.
 
-# R functions used in this section:
+# New R functions used in this section:
 
 #	- install.packages() - install R packages
 #	- installed.packages() - display installed R packages
@@ -212,7 +214,7 @@ vignette("tidyverse")
 ##############################################
 
 
-# 1. Getting Started with R #
+# 1. Getting Started with R [ACT001] #
 
 # R is a programming language. It has rules, packages, syntax, complexities, idiosyncracies...
 # It is not particularly easy to learn, nevermind master. It can seem as if you have to learn everything in order
@@ -312,6 +314,8 @@ int_var <- as.integer(int_var)
 print(typeof(int_var))
 
 # Vectors
+
+# Vectors provide a means of structuring data types as a list
 
 vec <- 1:10
 print(vec) # creates a vector from 1 to 10; a vector is a list of values stored in a single object
@@ -629,7 +633,14 @@ droplevels(ses_2)
 
 # 1.4 Saving Files #
 
-# I need to figure this out in the context of creating R project files.
+# We can save the current workspace (i.e. all of the objects and/or functions we have created):
+save(file="./temp/dw_workspace.RData") # RData is the file extension for a workspace
+load("c:/temp/dw_workspace.RData") # load in a workspace
+
+# However, we should have no need to save the workspace for a data wrangling/analysis piece of work;
+# we simply need our syntax file (R script) and raw data and we should be able to reproduce our project.
+
+# We can save our R script by pressing Ctrl + S (on Windows) or going to the File menu and selecting Save.
 
 
 # 1.5 Getting Help #
@@ -724,19 +735,229 @@ options(max.print = 9999) # set maxmimum number of rows to print to the console 
 
 # 1.11 Data Wrangling Examples #
 
-# Congratulations on getting through the technical (boring) bit of the activity. To whet your appetite, here are
+# Congratulations on getting through the technical (boring) bit of the first activity. To whet your appetite, here are
 # some examples of the techniques you will learn over the course of the workshop.
 
-# Import data
+# Importing data
 
-# Export data
+# Importing as a csv file
 
-# Create a data frame
+auto <- read_csv("./data_raw/auto.csv")
+str(auto)
+auto
 
-# ETC
+# Exporting data
+
+# Exporting as a csv file
+
+write_csv(auto, "./data_clean/auto2.csv")
+# write_csv() has two useful properties:
+#	- it encodes strings in UTF-8
+#	- it encodes dates as ISO8601
+# Both of these mean that the resulting file can be easily parsed by other languages/programs.
+
+# Exporting as a xlsx file
+
+library(readxl)
+write_xlsx(auto, file = "./data_clean/auto2.xlsx")
+
+# Exporting as an R file
+
+saveRDS(auto, "./data_clean/auto2.rds") # save the auto data set as an R data file
+readRDS("./data_clean/auto2.rds") # load in the R data file
+
+# Create a data set
+
+# Data sets are known as "data frames" in R/Python and are usually imported into R various functions (e.g. read_csv()).
+# However we can also create our own data frames using data.frame(); this comes in handy
+# not only for teaching purposes but also for simulation and exploration purposes.
+
+df <- data.frame(col1 = 1:3,
+                 col2 = c("this", "is", "text"),
+                 col3 = c(TRUE, FALSE, TRUE),
+                 col4 = c(2.5, 4.2, pi))
+# TASK: describe the structure of this data frame. Hint: use "str(df)".
+
+nrow(df) # return the number of rows in the data set
+ncol(df) # return the number of columns in the data set
+
+# New R functions used in this section:
+
+#	- length() - return the length of an object
+#	- rm() - remove an object from the workspace environment
+#	- read_csv() - import csv files into R
+#	- export_csv() - export data as csv files from R
+#	- read_excel() - import xls/xlsx files into R
+#	- write_xlsx() -  export data as xls/xlsx files from R
+#	- options() - change default R settings
+#	- ls() - list objects in workspace environment
+#	- str() - examine the structure of an object
+#	- factor() - create a categorical variable
+#	- class() - return an object's class
 
 
-# 2. 
+##############################################
+
+
+##############################################
+
+
+# 2. Organising Variables and Measures [ACT002] #
+
+# In this section we focus on importing data, and examining and manipulating variables.
+# We are going to work with large-scale, messy and longitudinal administrative data on U.K. charities.
+# A data dictionary can be found on the Charity Commission's website [http://data.charitycommission.gov.uk/data-definition.aspx]
+
+# 2.1 Importing Data Sets
+
+# This is the latest copy of the Charity Register i.e. list of all registered charities in England and Wales:
+char_reg <- read_csv("./data_raw/extract_main_charity.csv")
+# Ignore the warnings for now; we'll address those later.
+
+View(char_reg) # browse the data set
+head(char_reg) # view the first few rows of the data set
+tail(char_reg) # view the last few rows of the data set
+names(char_reg) # list of variable names
+str(char_reg) # examine the structure of the data set
+attributes(char_reg) # list the attributes (i.e. metadata) of the data set
+ncol(char_reg) # number of columns
+nrow(char_reg) # number of rows
+order(char_reg$regno) # sort the data set by ascending order of charity number
+
+# We can also add a label or comment to the dataset:
+comment(char_reg) <- "This dataset contains observations for registered charities in England & Wales (February 2019)"
+attributes(char_reg)
+# TASK: try adding a second comment to the dataset; what happens?
+
+# TASK: import the "extract_remove_ref.csv" file and describe the structure and contents of the data set, and label the data set.
+
+# 2.2 Examining Variables
+
+str(char_reg) # list the variables and their data type
+class(char_reg$income) # list the class of the income variable - it is numeric
+# Note the use of $col_name suffix to access variables in the data set i.e. data$variable.
+
+(var_lab(char_reg$income) <- "Latest annual gross income of a charity") # add a variable label using var_lab() function from "expss" package
+unlab(char_reg$income) # drop the variable label
+
+# TASK: add labels for all of the variables; refer to the data dictionary to understand the meaning of each column.
+
+head(char_reg$fyend) # day and month of a charity's financial year end
+class(char_reg$fyend) # stored as character data type - we want this to be a factor (categorical) variable
+(char_reg$fyend_cat <- as.factor(char_reg$fyend)) # create a new variable
+# QUESTION: what is the effect of enclosing the command in parentheses?
+
+levels(char_reg$fyend_cat) # hmmm, probably too many categories to be useful; let's drop this new variable:
+char_reg <- within(char_reg, rm(fyend_cat)) # remove the variable from the data set using the rm() function
+names(char_reg) # check if the variable was deleted
+
+# TASK: call the help documentation for the within() function and write a note describing its use.
+
+median(char_reg$income, na.rm = TRUE) # calculate median income, ignoring missing values
+summary(char_reg$income) # summary statistics for annual gross income; however, too difficult to read (in scientific notation)
+options(scipen=999) # change formatting display of numbers (no scientific notation)
+
+# TASK: run the summary() function once more. What is the mean income in the charity sector?
+
+char_reg$linc <- log(char_reg$income) # create a new variable that is a log transformation of annual gross income;
+# This is often a good idea as charity income is usually heavily positively skewed.
+
+# TASK: generate a variable for income squared.
+
+# Subsettting data
+
+char_reg_sub <- subset(char_reg, select = c(regno, income, fyend)) # keep certain variables
+str(char_reg_sub)
+
+char_reg_fil <- subset(char_reg, income >= 500000) # keep certain observations
+summary(char_reg_fil$income)
+
+# TASK: drop the "char_reg_sub" and "char_reg_fil" objects from the workspace.
+
+# Dealing with duplicates
+
+distinct(char_reg) # drops duplicate rows from the data set
+
+char_reg %>%
+  distinct(regno) # drop rows where there are duplicates of charity number; what is this new symbol %>%?
+
+# Piping
+
+# No, not the Scottish kind... Think of piping as a process for building summary tables. It takes
+# data as an input, transfers it into some functions, and converts it into some results (like a pipeline). 
+# In the words of Healy (2019):
+# "A pipeline is typically a series of operations that do one or more of four things:
+#   1. Group the data into the nested structure we want for our summary, such as “Religion by Region” or “Authors by Publications by Year”.
+#   2. Filter or select pieces of the data by row, column, or both. This gets us the piece of the table we want to work on.
+#   3. Mutate the data by creating new variables at the current level of grouping. This adds new columns to the table without aggregating it.
+#   4. Summarize or aggregate the grouped data. This creates new variables at a higher level of grouping. For example we might calculate means with mean() or counts with n(). This results in a smaller, summary table, which we might do more things on if we want."
+# The pipe operator = %>% (Ctrl + Shift + M)
+
+# It's a slightly abstract way of performing tasks, so let's dig into some more examples:
+
+char_reg %>%
+  distinct(income) # we can see that the results of this command greatly reduces the size of the data set (79,919 rows)
+
+char_reg2 <- char_reg %>%
+  distinct(income) # store the results of the distinct command in a new object (char_reg2)
+
+# TASK: explore distinct observations for some of the other variables in the data set.
+
+# Dealing with missing data
+
+# Think of missing values as being of two types:
+#	1. Explicitly missing
+#	2. Implicitly missing
+# The former is the presence of an absence (i.e. missing values are flagged as NA or 99), the latter the absence of a presence (i.e.
+# we do not possess an observation for that person for whatever reason).
+
+# In R, missing values are often represented by NA or some other user-specified value (e.g. 99).
+# Missing values are problematic as any the result of any operation involving them will also be missing (unknown). For example:
+x <- NA
+y <- NA
+x + 10
+y - 500
+NA == NA
+
+is.na(char_reg$income) # identify which values of the variable are missing
+which(is.na(char_reg$income)) # identify where in the variable the missing values are (i.e. the row number)
+sum(is.na(char_reg$income)) # count the number of missing values
+# Note how we wrapped the is.na() function inside the sum() function. This is a powerful feature of R and should be
+# kept in mind as you progress.
+
+# TASK: count the number of missing values for charity number, income date and email.
+
+# We can also use the complete.cases() function to identify and exclude rows with missing values:
+complete.cases(char_reg) # rows three and four have missing values for some/all of their variables
+char_reg[!complete.cases(char_reg), ] # list missing rows
+# Note the use of "!" in the above command: this is a logical negation e.g. NOT EQUALS. In the case above, the "!"
+# is returning the opposite of complete.cases().
+
+char_reg_nomiss <- na.omit(char_reg) # list non-missing rows
+nrow(char_reg_nomiss)
+
+# QUESTION: how many observations in the data set have no missing values for all of the variables?
+# TASK: create a new data set that only contains observations for which we have non-missing values for income.
+
+# We can exclude missing values from calculations and functions as follows:
+mean(char_reg$income)
+# QUESTION: why is the mean() function not returning a numeric value?
+
+mean(char_reg$income, na.rm = TRUE)
+
+# We can recode missing values quite easily:
+char_reg$income[char_reg$income == NA] <- -9
+char_reg[!complete.cases(char_reg$income), ]
+
+# Note the use of "[]"; this is the subsetting operator in R. The above command translates to: "change values of income
+# to -9 for observations where income equals NA."
+
+
+
+
+
+
+
 
 
 # 4. Dealing with Temporal Data #
@@ -949,35 +1170,6 @@ challenge <- read_csv(readr_example("challenge.csv"),
 library(tidyverse)
 installed.packages()
 
-View(auto) # browse the data set
-fix(auto) # edit the data set
-names(auto) # list of variable names
-ncol(auto) # number of columns
-nrow(auto) # number of rows
-
-# Detecting duplicate observations
-
-# Use the unique() or distinct() functions.
-
-# Examining variables
-
-str(auto) # list the variables and their data type
-class(auto$weight) # list the class of the weight variable
-class(auto$foreign) # stored as character data type - we want this to be a factor (categorical) variable
-  auto$foreign <- as.factor(auto$foreign) # coerce the foreign variable to be factor data type
-  levels(auto$foreign)
-  factor(auto$foreign) # that's more like it
-	unclass(auto$foreign)
-
-head(auto) # examine the first few rows of the data set
-tail(auto) # examine the last few rows of the data set
-head(auto$make)
-# Note the use of $col_name suffix to access variables in the data set
-
-summary(auto) # summary statistics for each of the variables
-# TASK: describe the results of this command. What are the differences in the results between
-# different types of variables?
-table(auto$foreign) # frequency table
 
 # Dealing with text data #
 
@@ -1282,7 +1474,7 @@ popular_dests
 #   2. Filter or select pieces of the data by row, column, or both. This gets us the piece of the table we want to work on.
 #   3. Mutate the data by creating new variables at the current level of grouping. This adds new columns to the table without aggregating it.
 #   4. Summarize or aggregate the grouped data. This creates new variables at a higher level of grouping. For example we might calculate means with mean() or counts with n(). This results in a smaller, summary table, which we might do more things on if we want."
-# The pipe operator = %>% (Ctrl + Shift + m)
+# The pipe operator = %>% (Ctrl + Shift + M)
 
 vignette("dplyr") # explore some use cases employing the 'dplyr' commands
 
