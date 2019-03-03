@@ -861,16 +861,34 @@ options(scipen=999) # change formatting display of numbers (no scientific notati
 
 char_reg$linc <- log(char_reg$income) # create a new variable that is a log transformation of annual gross income;
 # This is often a good idea as charity income is usually heavily positively skewed.
+hist(char_reg$linc) # plot a histogram of log income
 
-# TASK: generate a variable for income squared.
+# TASK: generate a variable for income squared and plot a histogram of it.
 
-# Subsettting data
+char_reg$highinc <- as.numeric(char_reg$income > 500000) # create a dummy variable that is set to 1 if income > £500k
+table(char_reg$highinc)
+class(char_reg$highinc) # stored as an integer
+
+char_reg$inc_cat <- cut(char_reg$income, breaks = c(0,25000,500000, Inf), labels = c("Small", "Medium", "Large")) # create a categorical variable from income
+# TASK: describe what the cut() function does and returns. What does "Inf" represent?
+summary(char_reg$inc_cat)
+class(char_reg$inc_cat) # stored as a factor
+levels(char_reg$inc_cat)
+
+char_reg$inc_cat[char_reg$inc_cat=="Small"] <- "Tiny" # recode one of the values of inc_cat to a different value (i.e. Small to Tiny)
+# EXAMPLE USING RECODE!
+
+# 2.4 Subsettting Data
 
 char_reg_sub <- subset(char_reg, select = c(regno, income, fyend)) # keep certain variables
 str(char_reg_sub)
 
 char_reg_fil <- subset(char_reg, income >= 500000) # keep certain observations
 summary(char_reg_fil$income)
+
+View(char_reg[char_reg$income >=100000000 & !is.na(char_reg$income), ])
+# Note the use of "[]" as another means of subsetting the data set. The above command displays the observations where
+# income is greater than £100m and income is not missing.
 
 # TASK: drop the "char_reg_sub" and "char_reg_fil" objects from the workspace.
 
@@ -903,7 +921,7 @@ char_reg2 <- char_reg %>%
 
 # TASK: explore distinct observations for some of the other variables in the data set.
 
-# Dealing with missing data
+# 2.5 Dealing with Missing Data
 
 # Think of missing values as being of two types:
 #	1. Explicitly missing
@@ -946,12 +964,183 @@ mean(char_reg$income)
 mean(char_reg$income, na.rm = TRUE)
 
 # We can recode missing values quite easily:
-char_reg$income[char_reg$income == NA] <- -9
-char_reg[!complete.cases(char_reg$income), ]
+char_reg$income[is.na(char_reg$income)] <- -9 # recode missing to -9
+View(char_reg$income[char_reg$income==-9])
 
-# Note the use of "[]"; this is the subsetting operator in R. The above command translates to: "change values of income
-# to -9 for observations where income equals NA."
+char_reg$income[char_reg$income==-9] <- -NA # recode -9 as missing
 
+# TASK: recode 0 as missing for income.
+
+# 2.6 Saving Data
+
+# We have conducted some basic but effective data wrangling work on our raw data - time to save the results:
+
+write_rds(char_reg, "./data_clean/ew-charity-register-201902.rds") # save as an R file
+write_csv(char_reg, "./data_clean/ew-charity-register-201902.csv")
+
+read_rds("./data_clean/ew-charity-register-201902.rds") # load in the clean data file
+
+
+# New R functions used in this section:
+
+# NOT COMPLETED!!
+
+
+# EXERCISE: 
+# 1. Load in the data file "extract_charity.csv".
+# 2. How many variables does it contain? How many observations?
+# 3. Create a subset of this data set containing only registered charities.
+# 4. Drop duplicate observations in the data set.
+# 5. Produce a histogram of the number of subsidiaries a charity has.
+# HINT: don't forget to use the data dictionary if you are unsure what the data set or variables represent.
+
+
+# Congratulations on reaching the end of Activity Two. If you feel comfortable then feel free to continue
+# a little further with the material. 
+
+### END OF ACTIVITY TWO [ACT002] ###
+
+
+##############################################
+
+
+##############################################
+
+
+# 3. Linking and Shaping Data [ACT003] #
+
+# In this section we focus on merging and appending multiple data sets together, as well
+# as reshaping a data set from wide to long (and vice versa).
+
+# Sometimes the data we need for an analysis are stored in separate data sets: either we need additional variables for a set of
+# observations, or additional observations for the same set of variables. This sounds a little abstract so let's look at examples
+# using administrative data on registered charities in England and Wales.
+
+# 3.1 Merging Data Sets #
+
+# The syntax (base R):
+# merged_data <- merge(df1, df2, by="common id variable"), where df1 = data set #1, df2 = data set #2, "common id variable" = unique
+# identifier of an observation. The data sets must be sorted by this id variable prior to merging.
+
+char_aoo <- read_csv("./data_raw/extract_charity_aoo.csv") # load in record of where a charity operates
+View(char_aoo)
+str(char_aoo)
+head(char_aoo)
+
+# Drop unneccessary variables
+
+char_aoo <- char_aoo %>%
+  select(regno, aootype, aookey)
+
+# TASK: list the names of the variables in the overwritten data set.
+
+# Sort data set by aootype and aookey
+
+char_aoo <- char_aoo %>%
+  arrange(aootype, aookey)
+# A = wide, B = Local authority, C = GLA/met county, D = country, E = continent.
+
+write_rds(char_aoo, "./temp/char_aoo_merge.rds") # save the data set in preparation for merging
+
+# Prepare second data set
+
+aoo_ref <- read_csv("./data_raw/extract_aoo_ref.csv") # load in reference list for where a charity operates
+View(aoo_ref)
+str(aoo_ref)
+head(aoo_ref)
+nrow(aoo_ref)
+
+# Drop unneccessary variables
+
+aoo_ref <- aoo_ref %>%
+  select(aootype, aookey, aooname)
+
+# TASK: list the names of the variables in the overwritten data set.
+
+# Sort data set by aootype and aookey
+
+aoo_ref <- aoo_ref %>%
+  arrange(aootype, aookey)
+
+write_rds(aoo_ref, "./temp/aoo_ref_merge.rds") # save the data set in preparation for merging
+
+# Load in original data set and merge with list of reference codes
+
+(char_aoo <- read_rds("./temp/char_aoo_merge.rds"))
+
+char_aoo_merge <- merge(char_aoo, aoo_ref, by = c("aootype", "aookey")) # merge the data sets
+View(char_aoo_merge)
+names(char_aoo_merge)
+class(char_aoo_merge$aooname) # now we have a string variable capturing where a charity operates
+
+char_aoo_merge <- char_aoo_merge %>% 
+  distinct(regno) # drop duplicate observations of charity number
+
+char_aoo_merge <- char_aoo_merge %>% 
+  arrange(regno) # sort data set by charity number
+  
+write_rds(char_aoo_merge, "./data_clean/charity-aoo-reference-list-201902.rds") # save the results as a clean data set
+
+# Great, now we have a lookup (reference) file of where a charity operates. Let's merge this with the Charity Register:
+char_reg <- read_rds("./data_clean/ew-charity-register-201902.rds") # load in charity register file
+head(char_reg)
+
+char_reg <- char_reg %>% 
+  arrange(regno) # sort data set by charity number
+
+char_reg <- merge(char_reg, char_aoo_merge, id = "regno")
+View(char_reg)
+names(char_reg)
+nrow(char_reg)
+
+# And there we have it: a simple way of combining three data sets into one.
+
+# EXERCISE:
+# 1. Merge "extract_class" and "extract_class_ref" data sets to create a reference file. 
+# 2. Merge this reference data set with the charity register.
+
+
+# 3.2 Appending Data Sets #
+
+char_fin <- read_csv("./data_raw/extract_financial.csv") # load in longitudinal data on charity financial returns
+head(char_fin)
+dim(char_fin) # dimensions of the data set
+
+# Let's split the data set by financial year:
+char_fin$year <- year(char_fin$fyend) # extract the year from financial year end information
+head(char_fin$year)
+# We'll have a lot more fun with dates during one of tomorrow's activities...
+
+char_fin_2018 <- char_fin %>%
+  filter(year == 2018) # create a new data set containing observations for 2018 only
+
+write_rds(char_fin_2018, "./temp/financial-data-2018.rds") # save as an R file
+
+# Now let's do the same for 2017 observations:
+char_fin_2017 <- char_fin %>%
+  filter(year == 2017)
+
+write_rds(char_fin_2017, "./temp/financial-data-2017.rds") # save as an R file
+
+# Append the two data sets together
+
+char_fin_1718 <- rbind(char_fin_2017, char_fin_2018)
+total <- nrow(char_fin_1718)
+count2017 <- nrow(char_fin_2017)
+count2018 <- nrow(char_fin_2018)
+(count2017 + count2018) == total # check if the append worked correctly
+
+# Obviously this was an artificial example as the financial data set didn't need to be split. However it is a good 
+# demonstration of appending data sets and other data wrangling functions (e.g. filtering).
+
+
+
+# Reshaping Data #
+
+# To long format
+
+fredts_m <- fredts %>% select(date, sp500_i, monbase_i) %>%
+    gather(key = series, value = score, sp500_i:monbase_i)
 
 
 
@@ -1176,7 +1365,7 @@ installed.packages()
 # Regular Expressions 
 
 # A regular expression (regex/regexp) is a sequence of characters that form a search pattern
-# and is an extremely useful function for pattern matching with text. Think of it as a grammer for detecting patterns in text.
+# and is an extremely useful function for pattern matching with text. Think of it as a grammar for detecting patterns in text.
 # There are base functions in R but we can use the "stringr" package for regex purposes also.
 library(stringr)
 library(tidyverse)
@@ -1533,58 +1722,7 @@ library(car)
 # Renaming Variables
 
 
-# Joining Data Sets #
 
-# Sometimes the data we need for an analysis are stored in separate data sets: either we need additional variables for a set of
-# observations, or additional observations for the same set of variables. This sounds a little abstract so let's look at examples
-# using administrative data on the top 300 charities in Scotland (by income). This is an open data set provided by the Scottish
-# Charity Regulator (OSCR): [https://www.oscr.org.uk/about-charities/search-the-register/the-300-highest-income-charities]
-
-# Merging data
-
-# The syntax (base R):
-# merged_data <- merge(df1, df2, by="common id variable"), where df1 = data set #1, df2 = data set #2, "common id variable" = unique
-# identifier of an observation. The data sets must be sorted by this id variable prior to merging.
-# dplyr
-
-chardata_1 <- read_csv("./data/scotchar_top300_details.csv")
-chardata_1 <- arrange(chardata_1, `Charity Number`)
-View(chardata_1) # contains organisational characteristics for top 300 charities
-
-chardata_2 <- read_csv("./data/scotchar_top300_income.csv")
-chardata_2 <- arrange(chardata_2, `Charity Number`)
-View(chardata_2) # contains income information for top 300 charities
-
-top300 <- merge(chardata_1, chardata_2, by = "`Charity Number`") # we only need Charity Number to merge but you can specify additional variables
-str(top300)
-names(top300) # now we have a single data set containing organisational and financial information for the charities
-
-# Notice how we enclosed the variable "Charity Number" in backticks (i.e. "``"). This is because R (and other languages)
-# struggle to parse variable names that contain spaces. There are a number of ways of dealing with this issue:
-# 1. The way we have here.
-# 2. Convert the data set to a tibble data frame using "tbl_df(chardata_1)".
-# 3. Use the janitor package's clean_names() function.
-# 4. Use the rename() function from dplyr to change the variable name(s).
-
-# Appending data
-
-# Note that variable names must be the same in across all data sets being appended.
-
-mydata6080 = read_csv("http://www.princeton.edu/~otorres/mydata6080.csv") # sample data from 1960 to 1989
-mydata9020 = read_csv("http://www.princeton.edu/~otorres/mydata9020.csv") # sample data from 1990 to 2013
-
-View(mydata6080)
-View(mydata9020)
-
-mydata = rbind(mydata6080, mydata9020)
-View(mydata)
-
-# Reshaping Data #
-
-# To long format
-
-fredts_m <- fredts %>% select(date, sp500_i, monbase_i) %>%
-    gather(key = series, value = score, sp500_i:monbase_i)
 
 
 # Final Thoughts #

@@ -184,7 +184,7 @@ write_csv(auto, "./data_clean/auto2.csv")
 # write_csv() has two useful properties:
 #	- it encodes strings in UTF-8
 #	- it encodes dates as ISO8601
-# Both of these mean that the resulting file can be easily parsed elsewhere.
+# Both of these mean that the resulting file can be easily parsed by other languages/programs.
 
 # Exporting as a xlsx file
 
