@@ -768,7 +768,7 @@ readRDS("./data_clean/auto2.rds") # load in the R data file
 
 # Create a data set
 
-# Data sets are known as "data frames" in R/Python and are usually imported into R various functions (e.g. read_csv()).
+# Data sets are known as "data frames" in R/Python and are usually imported into R using various functions (e.g. read_csv()).
 # However we can also create our own data frames using data.frame(); this comes in handy
 # not only for teaching purposes but also for simulation and exploration purposes.
 
@@ -780,6 +780,40 @@ df <- data.frame(col1 = 1:3,
 
 nrow(df) # return the number of rows in the data set
 ncol(df) # return the number of columns in the data set
+
+
+# Storing data as tibbles
+
+# A tibble (sounds like how an aristcrat pronounces "table") is a data frame that is very well suited to the tidyverse suite of functions.
+# It has a number of properties that makes it preferable to the use of base R data frames 
+# e.g. it doesn't convert strings to factors or change the names of variables.
+
+# Creating tibbles
+
+auto <- read_csv("./data_raw/auto.csv")
+str(auto)
+
+auto <- as_tibble(auto)
+str(auto)
+
+# Viewing tibbles
+
+auto 
+# tibble automatically restricts the display of the data to ten rows and as many columns that fit the console window. It also displays
+# the variable type underneath the variable name (e.g. dbl, chr, date, int).
+
+print(auto, n = Inf, width = Inf) # n controls the number of rows, and width the number of columns; 'Inf' tells print to display
+# all rows and columns.
+# Surpressing data display is a good default when working large data sets. However, you can override the default settings and
+# tell RStudio to always print the entire tibble:
+# options(tibble.print_min = Inf)
+# options(tibble.width = Inf)
+
+# Accessing tibble variables
+
+auto$price # by name
+auto[["price"]] # by name
+auto[[1]] # by column position
 
 # New R functions used in this section:
 
@@ -794,6 +828,8 @@ ncol(df) # return the number of columns in the data set
 #	- str() - examine the structure of an object
 #	- factor() - create a categorical variable
 #	- class() - return an object's class
+#	- as_tibble() - create a tibble data frame
+#	- data.frame() - create a data frame
 
 
 ##############################################
@@ -803,6 +839,18 @@ ncol(df) # return the number of columns in the data set
 
 
 # 2. Organising Variables and Measures [ACT002] #
+
+# Wickham's dictum: Tidy datasets are all alike, but every messy dataset is messy in its own way.
+
+# In this section we focus on the many tasks associated with wrangling or marshalling your data into a format suitable for analysis.
+# In R-speak, this means constructing a "tidy" data set. This format will be familiar to you. A tidy data set is one that:
+#	- is rectangular or tabular:
+#		o every value has its own cell
+#		o every variable has its own column
+#		o every observation has its own row
+# Social scientists are fluent in this format but as the known universe of data expands, corraling untidy data into a tidy format
+# will be a necessary skill. Examples of untidy data sources include text corpora, information scraped from websites etc. However,
+# even "recognisable" data sources can still be untidy e.g. administrative data, social surveys.
 
 # In this section we focus on importing data, and examining and manipulating variables.
 # We are going to work with large-scale, messy and longitudinal administrative data on U.K. charities.
@@ -1133,25 +1181,155 @@ count2018 <- nrow(char_fin_2018)
 # Obviously this was an artificial example as the financial data set didn't need to be split. However it is a good 
 # demonstration of appending data sets and other data wrangling functions (e.g. filtering).
 
+# EXERCISE:
+# 1. Split the financial history data set into two separate files: one for 2015 and one 2014.
+# 2. For one of these data sets, drop some of the variables and change the data type of a few others (e.g. make a character variable a factor).
+# 3. Append the data sets together - does it work?
 
 
-# Reshaping Data #
+# 3.3. Reshaping Data #
 
-# To long format
+# Let's look at the tidyr package and how it can be used to address two common issues:
+#	- one variable is spread across multiple columns
+#	- one observation is spread across multiple rows
 
-fredts_m <- fredts %>% select(date, sp500_i, monbase_i) %>%
-    gather(key = series, value = score, sp500_i:monbase_i)
+# 3.3.1 Gathering
+
+# The gather() function helps us address the first issue above. An example would be when there are multiple income variables
+# e.g. inc2011, inc2012 etc. In this instance it would be better to "gather" these values as follows:
+incdata <- tibble(pid = 1:3, inc2011 = c(10000, 25000, 98000), inc2012 = c(11000, 30000, 98000), 
+                  inc2013 = c(10000, 0, 100000), inc2014 = c(15000, 21000, 101000)) # create a tibble of sample data
+incdata
+
+inc_tidy <- incdata %>%
+  gather(inc2011:inc2014, key = "year", value = "annual income")
+arrange(inc_tidy, pid, year)
+
+# gather() takes three parameters:
+#	1. the variables you wish to gather the values of
+#	2. the name of the variable that distinguishes values of the gathered variables (key)
+#	3. the name of the variable(s) that stores the values of the gathered variables (value)
+
+# 3.3.2 Spreading
+
+# This is the opposite of gathering, and addresses the second issue above i.e. multiple rows per observation.
+table2 # here the "type" column actually houses two variables: cases and population
+
+tab2_tidy <- table2 %>%
+  spread(key = type, value = count)
+arrange(tab2_tidy, country, year)
+
+# spread() takes two parameters:
+#	1. the name of the variable containing multiple variables (key)
+#	3. the name of the variable that stores the values of the key variable (value)
+
+# Perhaps you've already noticed what we're doing goes by another name: reshaping your data to long or wide format.
+# That is, making our data set narrower and longer, or wider and shorter.
+
+# Having data in long format (i.e. multiple rows per observation) is necessary for conducting many types of longitudinal statistical modelling, 
+# so it is best to comfortable with reshaping ASAP.
+
+# Let's practice using our charity administrative data:
+
+# Long to wide
+
+char_fin <- read_csv("./data_raw/extract_financial.csv") # load in longitudinal data on charity financial returns
+head(char_fin)
+dim(char_fin)
+
+char_fin$year <- year(char_fin$fyend) # extract the year from financial year end information
+
+arrange(char_fin, regno, year)
+# The data set is currently in long format i.e. multiple rows per charity. Let's reshape it to wide format:
+
+char_fin_long <- char_fin %>% 
+  select(regno, year, income) # keep certain variables
+head(char_fin_long)
+
+char_fin_wide <- char_fin_long %>%
+  spread(year, income) # uh oh, looks like not all rows are uniquely identified by charity number and year
+
+char_fin_long <- char_fin_long %>%
+  distinct(regno, year, .keep_all = TRUE)
+
+# TASK: run the reshape command again.
+
+head(char_fin_wide) 
+names(char_fin_wide) # the naming of the columns isn't great (shouldn't be numbers in general), 
+# but that is a minor data wrangling task.
+
+# Wide to long
+
+char_fin_lagain <- char_fin_wide %>% 
+  gather(year, income, `2003`:`2020`) # `2003`:`2020` tells the command to gather all variables in this range
+# Note the use "``" (backticks) to reference the names of the year variables. This is necessary when a variable name
+# is not valid e.g. starts with a number, contains a space.
+
+char_fin_lagain <- char_fin_lagain %>% 
+  select(regno, year, income) %>% # drop 'NA' column (this represented observations with missing data for "year")
+  arrange(regno, year)
+
+head(char_fin_lagain) 
+names(char_fin_lagain)
+
+# And there we have it, back to the original long data set.
 
 
+### END OF ACTIVITY THREE [ACT003] ###
+
+# If you've finish ahead of time then please use this opportunity to revisit
+# troublesome topics/commands and ask the tutors plenty of questions.
 
 
+##############################################
 
+
+##############################################
+
+
+# AND NOW FOR SOMETHING COMPLETELY DIFFERENT
+
+# Making a near-perfect Yorkshire Pudding - a la Vernon Gayle #
+
+# 3 eggs
+# 115g plain flour
+# 285ml milk
+# 12 tablespoons vegetable oil / I prefer beef dripping
+
+# 1. Whisk the eggs, flour, salt, and milk together really well in a bowl 
+to make your batter. 
+
+# 2. Pour the batter into a jug, and let it sit for 30 minutes before you use it. 
+
+# 3. Turn your oven up to the highest setting and place the baking tray in the 
+oven to heat up for 5 minutes. 
+
+# 4. Place 1 table spoon of oil in each indentation, 
+and put the tray back into the oven and heat until oil is very hot.
+ 
+# 5. Open oven door, slide the tray out, and carefully pour the batter in. 
+
+# 6. Close the door and cook for 15 minutes without opening the oven door. 
+
+# Serve immediately with roast beef (or similar) veg and gravy.
+
+
+### END OF DAY ONE ###
+
+
+##############################################
+
+
+##############################################
 
 
 
 # 4. Dealing with Temporal Data #
 
-# Dealing with Dates #
+# Dates are tricky buggers to work with no matter what programming language or software package you use. 
+# Thankfully, R has a package - "lubridate" - that simplifies the data wrangling challenges associated with dates.
+
+# 4.1 Dealing with Dates #
 
 # Dates are represented by the Date class and times are represented by the POSIXct or the POSIXlt class. 
 # Dates are stored internally as the number of days since 1970-01-01 while times are stored internally as the number of seconds 
@@ -1164,8 +1342,8 @@ Sys.Date()
 Sys.time()
 
 # Converting strings to dates
-# This is an important process as dates are often imported in R and other software packages
-# as strings.
+
+# This is an important process as dates are often imported in R and other software packages as strings.
 x <- "2015-07-01" # string in YYYY-MM-DD format
 z <- as.Date(x)
 class(z)
@@ -1268,6 +1446,13 @@ x - y
 
 y + days(4)
 OlsonNames() # lists time zones
+
+
+### END OF ACTIVITY FOUR [ACT002] ###
+
+
+
+
 
 
 # Importing Data #
@@ -1465,17 +1650,7 @@ df %>%
 
 # Data Transformation #
 
-# Wickham's dictum: Tidy datasets are all alike, but every messy dataset is messy in its own way.
 
-# In this section we focus on the many tasks associated with wrangling or marshalling your data into a format suitable for analysis.
-# In R-speak, this means constructing a "tidy" data set. This format will be familiar to you. A tidy data set is one that:
-#	- is rectangular or tabular:
-#		o every value has its own cell
-#		o every variable has its own column
-#		o every observation has its own row
-# Social scientists are fluent in this format but as the known universe of data expands, corraling untidy data into a tidy format
-# will be a necessary skill. Examples of untidy data sources include text corpora, information scraped from websites etc. However,
-# even "recognisable" data sources can still be untidy.
 
 # Tidying your data
 
@@ -1485,41 +1660,7 @@ table2
 table3
 # QUESTION: which data set is "tidy" and why?
 
-# Now let's look at the tidyr package and how it can be used to address two common issues:
-#	- one variable is spread across multiple columns
-#	- one observation is spread across multiple rows
 
-# Gathering
-
-# The gather() function helps us address the first issue above. An example would be when there are multiple income variables
-# e.g. inc2011, inc2012 etc. In this instance it would be better to "gather" these values as follows:
-incdata <- tibble(pid = 1:3, inc2011 = c(10000, 25000, 98000), inc2012 = c(11000, 30000, 98000), 
-	inc2013 = c(10000, 0, 100000), inc2014 = c(15000, 21000, 101000)) # create a tibble of sample data
-incdata
-
-inc_tidy <- incdata %>%
-	gather(inc2011:inc2014, key = "year", value = "annual income")
-inc_tidy
-# gather() takes three parameters:
-#	1. the variables you wish to gather the values of
-#	2. the name of the variable that distinguishes values of the gathered variables (key)
-#	3. the name of the variables that stores the values of the gathered variables (value)
-
-# Spreading
-
-# This is the opposite of gathering, and addresses the second issue above.
-table2 # here the type column actually houses two variables: cases and population
-
-tab2_tidy <- table2 %>%
-	spread(key = type, value = count)
-# spread() takes two parameters:
-#	1. the name of the variable containing multiple variables (key)
-#	3. the name of the variable that stores the values of the key variable (value)
-
-# Perhaps you've already noticed what we're doing goes by another name: reshaping your data to long or wide format.
-# That is, making our data narrower and longer, or wider and shorter.
-# Having data in long format is necessary for conducting many types of longitudinal statistical modelling, so it is best to comfortable with 
-# gathering and spreading ASAP.
 
 # Missing values
 
@@ -1540,40 +1681,6 @@ comp_stocks <- stocks %>%
   complete(year, qtr)
 # QUESTION: what effect has complete() had on the original tibble?
 
-# Storing data as tibbles
-
-library(nycflights13) # load in flights data
-library(tidyverse) # load in dplyr via the tidyverse package
-
-# A tibble (sounds like how an aristcrat pronounces "table") is a data frame that is very well suited to the tidyverse suite of functions
-# It has a number of properties that makes it preferable to the use of base R data frames e.g. it doesn't convert strings to factors or change the names of variables.
-
-# Creating tibbles
-
-auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv")
-str(auto)
-
-as_tibble(auto)
-str(auto)
-
-# Viewing tibbles
-
-auto 
-# tibble automatically restricts the display of the data to ten rows and as many columns that fit the window. It also displays
-# the variable type underneath the variable name (e.g. dbl, chr, date, int).
-
-print(auto, n = Inf, width = Inf) # n controls the number of rows, and width the number of columns; 'Inf' tells print to display
-# all rows and columns.
-# Surpressing data display is a good default when working large data sets. However, you can override the default settings and
-# tell RStudio to always print the entire tibble:
-# options(tibble.print_min = Inf)
-# options(tibble.width = Inf)
-
-# Accessing tibble variables
-
-auto$price # by name
-auto[["price"]] # by name
-auto[[1]] # by column position
 
 
 
