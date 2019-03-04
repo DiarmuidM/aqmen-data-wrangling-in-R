@@ -33,6 +33,12 @@ Gayle, V.J. and Lambert, P.S. (2017) The Workflow: A Practical Guide to Producin
 [http://eprints.ncrm.ac.uk/4000/](http://eprints.ncrm.ac.uk/4000/) <br>
 _A practical guide to the data analysis workflow._
 
+#### Reproducible Research
+
+Gayle, V.J. () An introduction to Jupyter Notebooks for Social Science Research. NCRM Online Resources. NCRM.
+[https://www.youtube.com/watch?v=Os3s1jwLAEI](https://www.youtube.com/watch?v=Os3s1jwLAEI) <br>
+_An overview of how to interleave code, results and narrative information in a single, reproducible document._
+
 ### Online Resources:
 
 #### Courses
