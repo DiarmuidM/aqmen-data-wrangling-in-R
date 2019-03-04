@@ -1324,6 +1324,12 @@ and put the tray back into the oven and heat until oil is very hot.
 
 
 
+# REMINDER: this is a new R session and you need to reload (but not reinstall) the packages you need
+# for the upcoming activities. E.g. library(tidyverse)
+
+library(tidyverse)
+library(lubridate)
+
 # 4. Dealing with Temporal Data #
 
 # Dates are tricky buggers to work with no matter what programming language or software package you use. 
@@ -1337,9 +1343,9 @@ and put the tray back into the oven and heat until oil is very hot.
 
 # System properties
 
-Sys.timezone() 
-Sys.Date()
-Sys.time()
+Sys.timezone() # what timezone our system is set to
+Sys.Date() # the current date
+Sys.time() # the current date and time
 
 # Converting strings to dates
 
@@ -1353,14 +1359,14 @@ y <- "07/01/2015" # string in MM/DD/YYYY format
 z <- as.Date(y, format = "%m/%d/%Y") # specify format of date
 class(z)
 class(y)
-# Now that the information is in date format we can perform calculations involving units of time
+# Now that the information is in date format we can perform calculations involving units of time.
 
 # While we've used the base R functions to work with dates so far, we are better off
 # using a dedicated package for working with this data type: "lubridate"
 # Most of the material in this section is derived from: https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/
 
-library(lubridate)
-?lubridate # comes as part of the "tidyverse" collection of data science packages
+library(lubridate) # comes as part of the "tidyverse" collection of data science packages
+?lubridate
 
 begin <- c("May 11, 1996", "September 12, 2001", "July 1, 1988")
 end <- c("7/8/97","10/23/02","1/4/91") # sample observations for the start and end date of a process
@@ -1378,42 +1384,49 @@ class(end)
 as.numeric(begin)
 as.numeric(end)
 
-# We can also use "lubridate" for handling dates with hours, minutes and seconds:
+# We can also use lubridate for handling dates with hours, minutes and seconds:
 begin <- c("May 11, 1996 12:05", "September 12, 2001 1:00", "July 1, 1988 3:32")
 begin <- mdy_hm(begin)
 class(begin) # the dates are now interpeted as the number of seconds since January 1, 1970
 print(begin)
 
-"lubridate provides three classes, or three different ways, to distinguish between different types of time spans.
-1. Duration
-2. Interval
-3. Period
+# 4.2 Peforming Calculations with Dates
 
-Understanding these classes will help you get the most out of lubridate.
+# lubridate provides three classes, or three different ways, to distinguish between different types of time spans:
+# 1. Duration
+# 2. Interval
+# 3. Period
 
-The most simple is Duration. This is simply a span of time measured in seconds. There is no start date.
+# "Understanding these classes will help you get the most out of lubridate:
 
-An Interval is also measured in seconds but has an associated start date. An Interval measures elapsed seconds between two specific points in time.
+# The most simple is Duration. This is simply a span of time measured in seconds. There is no start date.
 
-A Period records a time span in units larger than seconds, such as years or months. 
-Unlike seconds, years and months differ in time. June has 30 days while July has 31 days. 
-February has 28 days except for leap years when it has 29 days. 
-With the Period class, we can add 1 month to February 1 and get March 1. 
-It allows us to perform calculations in calendar or clock time as opposed to absolute number of seconds." (Ford, 2017: https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/)
+# An Interval is also measured in seconds but has an associated start date. An Interval measures elapsed seconds between two specific points in time.
+
+# A Period records a time span in units larger than seconds, such as years or months. 
+
+# Unlike seconds, years and months are not standardised units of time. For example, June has 30 days while July has 31 days. 
+# February has 28 days except for leap years when it has 29 days. 
+# With the Period class, we can add 1 month to February 1 and get March 1. 
+# It allows us to perform calculations in calendar or clock time as opposed to absolute number of seconds." (Ford, 2017: https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/)
 
 start <- mdy_hm("2-11-2019 5:21")
 end <- mdy_hm("2-12-2019 5:21")
+
 # Calculate interval between these dates
+
 time_interval <- start %--% end # the "%--%" operator calculates the interval between two date objects
 print(time_interval)
 print(str(time_interval)) # examine the structure of the object
+# QUESTION: how many seconds have passed between these dates?
+
+time_period <- as.period(time_interval) # convert interval to a period
+print(time_period)
+str(time_period)
+# QUESTION: how many days have passed between these dates?
 
 time_duration <- as.duration(time_interval)
 print(time_duration) # displays number of seconds in the interval
-
-time_period <- as.period(time_interval)
-print(time_period)
-str(time_period)
 
 # We can also use lubridate to extract certain properties of a date object e.g. the year or month
 x <- c("2015-07-01", "2015-08-01", "2015-09-01")
@@ -1434,6 +1447,7 @@ sampyears <- seq(ymd("2010-1-1"), ymd("2015-1-1"), by = "months")
 print(sampyears)
 
 # Calculations with dates
+
 # "Since R stores date and time objects as numbers, this allows you to perform various calculations
 # such as logical comparisons, addition, subtraction, and working with durations." (Boehmke, 2016: 71)
 x <- Sys.Date()
@@ -1442,116 +1456,74 @@ x
 y <- as.Date("2015-09-11")
 x > y
 x - y
+y + days(4)
 # TASK: describe the results produced by the above block of code.
 
-y + days(4)
-OlsonNames() # lists time zones
+# If you're looking for further examples of using lubridate, run the command below:
+# vignette("lubridate")
+
+# For now, let's practice what we've learned using our administrative data.
+
+char_regd <- read_csv("./data_raw/extract_registration.csv", na = "") # load in registration data for charities
+# Note: we can tell R which values represent missing data; in this case blank records represent missing data (see data dictionary).
+
+View(char_regd)
+str(char_regd) # it looks like regdate and remdate are stored as datatime variables
+head(char_regd)
+
+# Calculate charity age
+
+(cdate <- Sys.Date())
+cyear <- year(cdate) # get current year
+char_regd$regy <- year(char_regd$regdate) # extract year from registration date
+char_regd$remy <- year(char_regd$remdate) # year charity was removed from the Register
+
+char_regd <- char_regd %>% 
+  mutate(age = ifelse(is.na(remdate), cyear - regy, remy - regy))
+
+# There's a lot to unpack with the code above; let's work from the bottom up:
+# 1. We create a new variable called "age" based on a conditional.
+# 2. The condition is the first argument (i.e. for observations with missing data for "remdate").
+# 3. If the condition is met (i.e. TRUE), then "age" equals "cyear - regy"; otherwise remy - regy".
+# 4. The new variable is added to the existing data set char_regd.
+
+hist(char_regd$age)
+class(char_regd$age)
+# An interesting quirk of charity administrative data is that it underestimates the age of older organisations.
+# The Register of Charities was only constructed in 1961 and this date is often listed as when an organisation came into
+# being as a charity. 
+
+# Calculate charity survival
+
+char_regd <- char_regd %>% 
+  mutate(los = ifelse(!is.na(remy), remy - regy, NA))
+
+# There's a lot to unpack with the code above; let's work from the bottom up:
+# 1. We create a new variable called "los" (length of survival) based on a conditional.
+# 2. The condition is the first argument (i.e. for observations with no missing data for "remy").
+# 3. If the condition is met (i.e. TRUE), then "los" equals "remy - regy"; otherwise it takes the value NA.
+# 4. The new variable is added to the existing data set char_regd.
+
+hist(char_regd$los)
+char_regd[1:1000,] # view the first 1000 rows
+
+# TASK: play around with some of the lubridate classes (i.e. as.interval, as.period etc) using the administrative data.
+# For example, how old is a charity in months/days/seconds?
 
 
-### END OF ACTIVITY FOUR [ACT002] ###
+### Additional Topic Alert ###
 
+# Only tackle this section if you are feeling confident with the material so far.
+# You will have plenty of time on Day Three during the Hackathon to revisit this section.
 
-
-
-
-
-# Importing Data #
-
-# In this section we focus on importing tabular data stored in text, Excel and R files.
-# R provides a number of base functions for this process (e.g. read.table()), however we will use
-# a package designed specifically for this task: readr. It is faster and its default settings remove the need to specify options.
-
-library(readr)
-?readr
-# readr is a great wee package and it is worth learning more about how it parses a file. See https://r4ds.had.co.nz/data-import.html
-# for a thorough overview of how this package interprets a file and its contents.
-
-# Reading data from csv files
-
-auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv")
-str(auto)
-auto
-# read_csv() also has a number of useful options: col_types allows you to specify the data type or class of each column;
-# n_max allows you to read in n rows from the data file.
-
-auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", n_max=25)
-str(auto)
-auto # only read in first 25 rows of the data
-
-auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", skip=1) # skip the first line in the file; useful
-# when you don't want to import the column headings or if the first line contains text instead of observations.
-
-auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", col_names = FALSE)
-# By default read_csv() treats the first line as the column headings; we can override this with 'col_names = FALSE'.
-
-auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", na = ".")
-# Tells read_csv() to treat instances of "." as missing.
-
-# Reading data from txt files
-
-auto <- read_delim("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.txt", delim=",", col_names = TRUE)
-str(auto)
-auto
-# Using read_delim() is more appropriate when the delimiter is not a comma (e.g. a hyphen, newline, tilde).
-
-# Reading data from Excel files
-
-library("readxl")
-?readxl
-auto <- read_excel("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.xlsx")
-str(auto)
-auto
-# read_excel() also has a number of useful options: sheet allows you to specify which spreadsheet to read in;
-# col_names allows you to read in specific columns; skip enables you to skip a particular row in the data; 
-# na tells read_excel() how missing values are represented in the data (e.g. na = "999")
-
-auto <- read_excel("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.xlsx", sheet = "Sheet1")
-str(auto)
-auto
-# QUESTION: why is the data frame empty?
-
-# Reading data from R files
-
-# auto <- load(file = "C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.rds") 
-# str(auto)
-# auto
-# # NOT WORKING #
-
-# Reading data from dta files (Stata data sets)
-
-library(haven)
-auto <- read_dta("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.dta")
-# You can use haven to import .sav and .sas files also.
-
-# Dealing with problems
-
-# While readr does a good job at guessing the correct data type of the variables, it is not infallible. This is because it only
-# examines the first 1000 values of a variable in order to make its guess. Issues can also arise when a variable contains lots
-# of missing values. Let's highlight some of these issues using a data set provided by the readr package:
-challenge <- read_csv(readr_example("challenge.csv"))
-problems(challenge)
-# TASK: describe the issue(s) readr is having importing this data set.
-
-# We can specfiy the variable types ourselves using the col_types() function:
-challenge <- read_csv(readr_example("challenge.csv"),
-	col_types = cols(x = col_double(), y = col_date())) # specify the correct column types
-
-
-
-
-# Examining Data #
-
-library(tidyverse)
-installed.packages()
-
-
-# Dealing with text data #
+# Dealing with Text Data #
 
 # Regular Expressions 
 
 # A regular expression (regex/regexp) is a sequence of characters that form a search pattern
 # and is an extremely useful function for pattern matching with text. Think of it as a grammar for detecting patterns in text.
 # There are base functions in R but we can use the "stringr" package for regex purposes also.
+
 library(stringr)
 library(tidyverse)
 
@@ -1647,6 +1619,111 @@ df %>%
 
 # Looking for more string manipulation functions? Look no further than the `stringi` package`, 
 # which has >200 functions. Have fun!
+  
+
+
+### END OF ACTIVITY FOUR [ACT004] ###
+
+
+
+##############################################
+
+
+##############################################
+
+
+
+# Importing Data #
+
+# In this section we focus on importing tabular data stored in text, Excel and R files.
+# R provides a number of base functions for this process (e.g. read.table()), however we will use
+# a package designed specifically for this task: readr. It is faster and its default settings remove the need to specify options.
+
+library(readr)
+?readr
+# readr is a great wee package and it is worth learning more about how it parses a file. See https://r4ds.had.co.nz/data-import.html
+# for a thorough overview of how this package interprets a file and its contents.
+
+# Reading data from csv files
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv")
+str(auto)
+auto
+# read_csv() also has a number of useful options: col_types allows you to specify the data type or class of each column;
+# n_max allows you to read in n rows from the data file.
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", n_max=25)
+str(auto)
+auto # only read in first 25 rows of the data
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", skip=1) # skip the first line in the file; useful
+# when you don't want to import the column headings or if the first line contains text instead of observations.
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", col_names = FALSE)
+# By default read_csv() treats the first line as the column headings; we can override this with 'col_names = FALSE'.
+
+auto <- read_csv("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.csv", na = ".")
+# Tells read_csv() to treat instances of "." as missing.
+
+# Reading data from txt files
+
+auto <- read_delim("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.txt", delim=",", col_names = TRUE)
+str(auto)
+auto
+# Using read_delim() is more appropriate when the delimiter is not a comma (e.g. a hyphen, newline, tilde).
+
+# Reading data from Excel files
+
+library("readxl")
+?readxl
+auto <- read_excel("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.xlsx")
+str(auto)
+auto
+# read_excel() also has a number of useful options: sheet allows you to specify which spreadsheet to read in;
+# col_names allows you to read in specific columns; skip enables you to skip a particular row in the data; 
+# na tells read_excel() how missing values are represented in the data (e.g. na = "999")
+
+auto <- read_excel("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.xlsx", sheet = "Sheet1")
+str(auto)
+auto
+# QUESTION: why is the data frame empty?
+
+# Reading data from R files
+
+# auto <- load(file = "C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.rds") 
+# str(auto)
+# auto
+# # NOT WORKING #
+
+# Reading data from dta files (Stata data sets)
+
+library(haven)
+auto <- read_dta("C:/Users/mcdonndz-local/Desktop/github/aqmen_wp3/data/auto.dta")
+# You can use haven to import .sav and .sas files also.
+
+# Dealing with problems
+
+# While readr does a good job at guessing the correct data type of the variables, it is not infallible. This is because it only
+# examines the first 1000 values of a variable in order to make its guess. Issues can also arise when a variable contains lots
+# of missing values. Let's highlight some of these issues using a data set provided by the readr package:
+challenge <- read_csv(readr_example("challenge.csv"))
+problems(challenge)
+# TASK: describe the issue(s) readr is having importing this data set.
+
+# We can specfiy the variable types ourselves using the col_types() function:
+challenge <- read_csv(readr_example("challenge.csv"),
+	col_types = cols(x = col_double(), y = col_date())) # specify the correct column types
+
+
+
+
+# Examining Data #
+
+library(tidyverse)
+installed.packages()
+
+
+
 
 # Data Transformation #
 
