@@ -168,7 +168,7 @@ file.info("./data_raw/sampdata.csv") # displays some basic file information
 
 # 0.2 Installing Packages #
 
-# The real power of using R for data wrangling and analysis comes from the universe of user-written packages that are available.
+# The real power of using R for data wrangling, visualisation and analysis comes from the universe of user-written packages that are available.
 # A package bundles together code, data, documentation, and tests and provides an easy method to share with others.
 
 # Packages represent both a blessing and a curse: a blessing because it is unlikely you won't be able to find a function you need for your analysis;
@@ -763,8 +763,8 @@ write_xlsx(auto, file = "./data_clean/auto2.xlsx")
 
 # Exporting as an R file
 
-saveRDS(auto, "./data_clean/auto2.rds") # save the auto data set as an R data file
-readRDS("./data_clean/auto2.rds") # load in the R data file
+write_rds(auto, "./data_clean/auto2.rds") # save the auto data set as an R data file
+read_rds("./data_clean/auto2.rds") # load in the R data file
 
 # Create a data set
 
@@ -851,6 +851,9 @@ auto[[1]] # by column position
 # Social scientists are fluent in this format but as the known universe of data expands, corraling untidy data into a tidy format
 # will be a necessary skill. Examples of untidy data sources include text corpora, information scraped from websites etc. However,
 # even "recognisable" data sources can still be untidy e.g. administrative data, social surveys.
+
+# Finally, even if your data set is tabular, the variable names and values still need processing, new measures need to be constructed,
+# additional data sets need to merged or appended etc.
 
 # In this section we focus on importing data, and examining and manipulating variables.
 # We are going to work with large-scale, messy and longitudinal administrative data on U.K. charities.
@@ -949,7 +952,7 @@ char_reg %>%
 
 # Piping
 
-# No, not the Scottish kind... Think of piping as a process for building summary tables. It takes
+# No, not the Scottish kind... Think of piping as a process for combining multiple functions in one command. It takes
 # data as an input, transfers it into some functions, and converts it into some results (like a pipeline). 
 # In the words of Healy (2019):
 # "A pipeline is typically a series of operations that do one or more of four things:
@@ -957,9 +960,12 @@ char_reg %>%
 #   2. Filter or select pieces of the data by row, column, or both. This gets us the piece of the table we want to work on.
 #   3. Mutate the data by creating new variables at the current level of grouping. This adds new columns to the table without aggregating it.
 #   4. Summarize or aggregate the grouped data. This creates new variables at a higher level of grouping. For example we might calculate means with mean() or counts with n(). This results in a smaller, summary table, which we might do more things on if we want."
+
+# However, this is simply a taster of the tasks that can be performed while piping.
+
 # The pipe operator = %>% (Ctrl + Shift + M)
 
-# It's a slightly abstract way of performing tasks, so let's dig into some more examples:
+# Piping is slightly abstract at first glance, so let's dig into some more examples:
 
 char_reg %>%
   distinct(income) # we can see that the results of this command greatly reduces the size of the data set (79,919 rows)
@@ -1277,7 +1283,7 @@ names(char_fin_lagain)
 
 ### END OF ACTIVITY THREE [ACT003] ###
 
-# If you've finish ahead of time then please use this opportunity to revisit
+# If you've finished ahead of time then please use this opportunity to revisit
 # troublesome topics/commands and ask the tutors plenty of questions.
 
 
@@ -1322,6 +1328,8 @@ and put the tray back into the oven and heat until oil is very hot.
 
 ##############################################
 
+
+### BEGINNING OF DAY TWO ###
 
 
 # REMINDER: this is a new R session and you need to reload (but not reinstall) the packages you need
@@ -1632,6 +1640,23 @@ df %>%
 
 
 ##############################################
+
+
+
+# 5. Harvesting Web-based Data [ACT005] #
+
+# Launch Spyder IDE and open the file "aqmen_R_data-wrangling_web-data_201903".
+
+
+### END OF ACTIVITY FIVE [ACT005] ###
+
+
+
+##############################################
+
+
+##############################################
+
 
 
 # 6. Automating Data Wrangling Operations [ACT006] #
