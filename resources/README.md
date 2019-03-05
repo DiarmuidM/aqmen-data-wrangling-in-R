@@ -33,6 +33,9 @@ Gayle, V.J. and Lambert, P.S. (2017) The Workflow: A Practical Guide to Producin
 [http://eprints.ncrm.ac.uk/4000/](http://eprints.ncrm.ac.uk/4000/) <br>
 _A practical guide to the data analysis workflow._
 
+Newport, C. (2016) Deep Work: Rules for Focused Success in a Distracted World. [http://calnewport.com/books/deep-work/](http://calnewport.com/books/deep-work/) <br>
+_A compelling strategy for organising your knowledge-intensive work._
+
 ### Online Resources:
 
 #### Reproducible Research
