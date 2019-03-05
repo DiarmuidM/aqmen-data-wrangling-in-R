@@ -346,6 +346,15 @@ for fid in fid_list: # search for the ids in the list
 # If you find you are getting status code = 404 then don't be alarmed. While this means you
 # were unable to request the API endpoint, it is likely due to the rate limit. This is the limit
 # on the number of requests you can send to an API in a given timeframe.
+    
+    
+# Final Thoughts #
+
+# Some things to consider with harvesting data from the web:
+    # 1. You should still adhere to ethical research principles and practices.
+    # 2. Make sure you comply with the restrictions arounf the use of certain information e.g. email addresses, phone numbers.
+    # 3. The old ways can be best i.e. requesting data from a human.
+    
 
 # EXERCISE:
 # Free play time: consult the Police API documentation and construct your own API searches.
