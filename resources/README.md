@@ -52,6 +52,11 @@ _DataCamp offer a multitude of courses on R and data science, some of which are 
 Analytics Vidhya Data Science Courses. [https://courses.analyticsvidhya.com](https://courses.analyticsvidhya.com) <br>
 _Offer a range of data science courses at a reasonable cost._
 
+#### Guidance and Code
+
+Institute for Digital Research and Education (IDRE), UCLA. [https://stats.idre.ucla.edu/r/](https://stats.idre.ucla.edu/r/) <br>
+_Excellent range of articles and code examples for data wrangling and analysis in R._
+
 #### Cheat sheets
 
 RStudio Cheatsheets. [https://www.rstudio.com/resources/cheatsheets/](https://www.rstudio.com/resources/cheatsheets/) <br>
