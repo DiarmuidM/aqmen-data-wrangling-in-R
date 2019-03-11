@@ -948,7 +948,7 @@ View(char_reg[char_reg$income >=100000000 & !is.na(char_reg$income), ])
 distinct(char_reg) # drops duplicate rows from the data set
 
 char_reg %>%
-  distinct(regno) # drop rows where there are duplicates of charity number; what is this new symbol %>%?
+  distinct(regno, .keep_all = TRUE) # drop rows where there are duplicates of charity number; what is this new symbol %>%?
 
 # Piping
 
@@ -1128,7 +1128,7 @@ names(char_aoo_merge)
 class(char_aoo_merge$aooname) # now we have a string variable capturing where a charity operates
 
 char_aoo_merge <- char_aoo_merge %>% 
-  distinct(regno) # drop duplicate observations of charity number
+  distinct(regno, .keep_all = TRUE) # drop duplicate observations of charity number
 
 char_aoo_merge <- char_aoo_merge %>% 
   arrange(regno) # sort data set by charity number
@@ -1489,7 +1489,7 @@ char_regd$remy <- year(char_regd$remdate) # year charity was removed from the Re
 char_regd <- char_regd %>% 
   mutate(age = ifelse(is.na(remdate), cyear - regy, remy - regy))
 
-# There's a lot to unpack with the code above; let's work from the bottom up:
+# There's a lot to unpack with the code above:
 # 1. We create a new variable called "age" based on a conditional.
 # 2. The condition is the first argument (i.e. for observations with missing data for "remdate").
 # 3. If the condition is met (i.e. TRUE), then "age" equals "cyear - regy"; otherwise remy - regy".
@@ -1506,7 +1506,7 @@ class(char_regd$age)
 char_regd <- char_regd %>% 
   mutate(los = ifelse(!is.na(remy), remy - regy, NA))
 
-# There's a lot to unpack with the code above; let's work from the bottom up:
+# There's a lot to unpack with the code above:
 # 1. We create a new variable called "los" (length of survival) based on a conditional.
 # 2. The condition is the first argument (i.e. for observations with no missing data for "remy").
 # 3. If the condition is met (i.e. TRUE), then "los" equals "remy - regy"; otherwise it takes the value NA.
