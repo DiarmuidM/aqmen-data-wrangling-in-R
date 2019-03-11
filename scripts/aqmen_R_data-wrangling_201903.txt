@@ -50,10 +50,13 @@
 #
 # Good luck.
 #
+#
 ##############################################
 
 
 ##############################################
+
+
 
 # Outline of Activities #
 
@@ -114,6 +117,7 @@
 
 # 0. Software Demonstration #
 
+
 # 0.1 System Setup #
 
 # Create a R project folder/directory
@@ -132,21 +136,22 @@ for(f in folders) {
   dir.create(f)
 } # take a look at the bottom right-hand panel in RStudio (or the directory on your machine) to check if the folders were created
 
-# Creating and saving files:
+# Creating and saving files
+
 data <- file.create("./temp/sampdata.csv")
 write.csv(data, "./temp/sampdata_20190321.csv")
 # Note the use of "." at the beginning of the file path; this signifies that the current working directory
 # should form the first part of the path without needing to be explicitly stated. This is an example of
 # using relative file paths and is considered good practice.
 
-# List all files in our working directory:
+# List all files in your working directory
+
 dir() # list all files in a directory
 head(dir(recursive = TRUE)) # list all files in a directory (including its subdirectories); head() restricts the output to the first few results
 dir(pattern = "\\.csv$", recursive = TRUE) # find all files that end in ".csv"
 # The above command used regular expressions to detect patterns in text.
 
-file.info("./data_raw/sampdata.csv") # displays some basic file information 
-# (e.g. size, whether it is a folder, created and modified times)
+file.info("./data_raw/sampdata.csv") # displays some basic file information e.g. size, whether it is a folder, created and modified times
 
 # That's enough file management for now. There are lots of other tasks we can perform, such as copying, moving, deleting,
 # opening, checking if a file exists etc, that we do not cover here: see [http://theautomatic.net/2018/07/11/manipulate-files-r/]
@@ -169,7 +174,7 @@ file.info("./data_raw/sampdata.csv") # displays some basic file information
 # 0.2 Installing Packages #
 
 # The real power of using R for data wrangling, visualisation and analysis comes from the universe of user-written packages that are available.
-# A package bundles together code, data, documentation, and tests and provides an easy method to share with others.
+# A package bundles together code, data, documentation and tests, and provides an easy method to share with others.
 
 # Packages represent both a blessing and a curse: a blessing because it is unlikely you won't be able to find a function you need for your analysis;
 # a curse because it adds a bit of administrative burden to your workflow (i.e. find a package, install it, load it, use it). Also,
@@ -177,13 +182,15 @@ file.info("./data_raw/sampdata.csv") # displays some basic file information
 
 # A package only needs to be installed once, but you will need to load it in every time you launch an R session.
 
-my_packages <- c("tidyverse", "car", "haven", "expss") # create a list of desired packages
+my_packages <- c("tidyverse", "car", "haven", "expss", "lubridate", "readxl") # create a list of desired packages
 
 install.packages(my_packages, repos = "http://cran.rstudio.com") # install packages from the CRAN repository
 
 installed.packages() # check which packages have been installed
 
 .libPaths() # check which folder the packages are downloaded to
+
+update.package("tidyverse") # update the tidyverse package
 
 
 # 0.3 Loading Packages #
@@ -194,7 +201,7 @@ vignette("tidyverse")
 
 # TASK: load in the "car", "haven", and "expss" packages.
 
-# A final note about packages: you'll see mention of performing functions or tasks using base R. This means drawing on the functions that come
+# A final note about packages: you'll see mention of executing functions or tasks using base R. This means utilising the functions that come
 # as standard with your version of R. install.packages() and write.csv() are examples of base R functions.
 
 # For the purposes of data wrangling (and most other data analysis tasks, frankly), we will not use base R functions; the reasons will become clear
@@ -205,20 +212,23 @@ vignette("tidyverse")
 #	- install.packages() - install R packages
 #	- installed.packages() - display installed R packages
 #	- .libPaths() - display directory of installed R packages
+#	- update.package() - update an installed package
 #	- library() - load in R package
 #	- vignette() - view examples of how to use the function/package (not available for all functions/packages)
 
+
 ##############################################
 
 
 ##############################################
+
 
 
 # 1. Getting Started with R [ACT001] #
 
 # R is a programming language. It has rules, packages, syntax, complexities, idiosyncracies...
-# It is not particularly easy to learn, nevermind master. It can seem as if you have to learn everything in order
-# to do anything!
+# It is not particularly easy to learn, nevermind master. 
+# It can seem as if you have to learn everything in order to do anything!
 
 # Persevere: like any language, once you grasp the building blocks you will begin to feel comfortable. All of the fancy models, code and graphs
 # that make it into journal articles, textbooks, presentations etc are just extensions and flourishes added on top of the basic functions and rules.
@@ -234,7 +244,8 @@ vignette("tidyverse")
 
 # Comments are an important means of documenting your workflow and ensuring others (including future-you) can reproduce your work.
 
-# In R studio, you can create multiline comments by highlighting the text and pressing Ctr + Shift + C. For example:
+# In RStudio, you can create multiline comments by highlighting the text and pressing Ctr + Shift + C.
+# TASK: convert the text below to a multiline comment.
 
 This should be a comment and not code.
 Excuse me, did you hear me?
@@ -256,9 +267,10 @@ print("Hello World!") # display a message to the console
 # Variables are known as 'objects' in R and can store a wide variety of data types:
 # - numeric
 # - string
-# - boolean etc
+# - boolean 
+# - date etc
 
-# Each data type can have different classes i.e. numeric has integer and double (e.g. decimal).
+# Each data type can have different classes i.e. numeric has integer (whole numbers) and double (decimals).
 
 # We assign a value to an object using the "<-" operator. We can also use "=" but this is best avoided as the equals sign has another use
 # and "<-" is considered standard practice in R.
@@ -278,6 +290,12 @@ y
 
 print(x + y) # print ensures the result is displayed in the console or output window
 
+# We can perform calculations using numeric objects:
+x * y
+x / y
+x + y
+x - y
+
 # We can compare objects using a set of comparison operators:
 x == y
 x < y
@@ -289,7 +307,7 @@ x <= y
 
 a <- c(1, 4, 9, 12)
 b <- c(4, 4, 9, 13)
-a == b # compares each number in the vector to its corresponding number in the other vector
+a == b # compares each number in the vector (list) to its corresponding number in the other vector
 
 # Note that logical values TRUE and FALSE equate to 1 and 0 respectively, allowing us to perform arithmetic operations using these results:
 sum(a == b) # 2 instances where the elements of the vector are equal
@@ -298,7 +316,7 @@ sum(a == b) # 2 instances where the elements of the vector are equal
 identical(x, y)
 
 print(typeof(x))
-print(typeof(y)) # R stores numbers as a double by default; we need to be specific when assigning the object's value(s):
+print(typeof(y)) # R stores numbers as double class by default; we need to be specific when assigning the object's value(s):
 
 rm("x") # remove the objects from R
 rm("y") # check the environment pane in the top-right hand corner of RStudio to see what objects remain in the global environment
@@ -313,19 +331,17 @@ int_var <- 20
 int_var <- as.integer(int_var)
 print(typeof(int_var))
 
-# Vectors
-
 # Vectors provide a means of structuring data types as a list
 
 vec <- 1:10
 print(vec) # creates a vector from 1 to 10; a vector is a list of values stored in a single object
-vec[1] # return the first element in vec
-vec[1:5] # return the first five elements in vec
+vec[1] # return the first element in the list
+vec[1:5] # return the first five elements in the list
 vec[-2] # return the values of the vector, excluding the second element
 vec[-1:-5]
 # TASK: describe the results of "vec[-1:-5]".
 
-# The above commands are known as 'slicing' i.e. accessing a particular element(s) in a vector.
+# The above commands are an example of 'slicing' i.e. accessing a particular element(s) in a vector.
 
 # You can also store objects as a vector:
 ovec <- c(x, y) # combine the objects "x" and "y" in a vector called "ovec"
@@ -335,7 +351,7 @@ ovec
 length(vec)
 
 # You can also drop elements:
-vec <- vec[-2] # note that we overwrite the existing object; we could just as easily assign a new object to preserve the original
+vec <- vec[-2] # note that we overwrite the existing object; we could just as easily assign a new object and preserve the original
 vec2 <- vec[-(4:6)] # drop 4-6 from the vector
 
 # We can perform calculations with vectors:
@@ -346,7 +362,7 @@ c <- c(1, 2, 3)
 a + b # adds each element of the vectors together in order (i.e. 1 + 6, 2 + 7 etc)
 # This is known as vectorization and is a very useful property of R.
 
-a + c # generates a warning that the vectors are not multiples of each other (i.e. one has 5 elements, the other 4)
+a + c # generates a warning that the vectors are not multiples of each other (i.e. one has 5 elements, the other 3)
 # When vectors are of unequal length, the shorter vector is "recycled" i.e. goes back to the start.
 
 # Generate a sequence of numbers
@@ -356,13 +372,21 @@ print(sequence)
 # TASK: describe what the seq() function is doing above.
 # TASK: create a sequence of numbers that starts at 55, ends at 7000, and increases by 55 each time.
 
+# We can also save some typing with the above command:
+sequence <- seq(1, 100, 5)
+# R functions often take one or more arguments, and expect them in a particular order. In this example,
+# the first argument of the seq() function is the "from" option, the second is the "to" option, and the third is the "by" option.
+# As long as we provide the correct number of arguments, R is clever enough to know which number corresponds to which argument.
+
+# Of course, you can always be clear and state the argument you are providing.
+
 # Create a sequence based on repeating or replicating the numbers
 repetition <- rep(1:10, each = 10)
 print(repetition)
 
 # Generating sequences of random numbers
 
-# This is a useful function for performing simulations or generating data for testing ideas and techniques
+# This is a useful function for performing simulations or generating data for testing ideas and techniques.
 
 # Generate 100 random numbers between 0 and 25 from a uniform distribution i.e. each number has an equal probability of being selected
 runif(100, min = 0, max = 25)
@@ -375,19 +399,10 @@ sample(0:25, 100, replace = FALSE)
 
 # QUESTION: why can we not sample 100 numbers from this range without replacement?
 
-# Generate 1000 random numbers from a normal distribution with given mean and standard deviation
+# Generate 1000 random numbers from a normal distribution with a given mean and standard deviation
 normdist <- rnorm(1000, mean = 0, sd = 1)
 hist(normdist) # approximately normal 
 print(summary(normdist))
-
-# Generate CDF probabilities for value(s) in vector q
-pnorm(0.5, mean = 0, sd = 1)
-
-# Generate quantile for probabilities in vector p
-qnorm(0.5, mean = 0, sd = 1)
-
-# Generate density function probabilites for value(s) in vector x
-dnorm(0.5, mean = 0, sd = 1)
 
 # Generate a vector of length n displaying the number of successes from a trial of size = 100 with a probabilty of success = 0.5
 rbinom(10, size = 100, prob = 0.5)
@@ -425,7 +440,7 @@ round(x, digits = 1)
 
 # 1.3.2 Strings #
 
-# Strings (text) are stored in the character class in R.
+# Strings (text) are stored as the character class in R.
 
 a <- "learning to create" # create string a
 b <- "character strings" # create string b
@@ -501,7 +516,7 @@ writeLines(x) # beware that the printed representation of a string is different 
 
 help("stringr")
 
-# All functions in stringr start with str_ and take a vector of strings as the first argument:
+# All functions in stringr start with the prefix "str_" and take a vector of strings as the first argument:
 
 x <- "Hello, this is a run-of-the-mill string."
 str_length(x)
@@ -571,7 +586,7 @@ sort(set_5)
 sort(set_5, decreasing = TRUE)
 
 # That's enough of strings. The information they contain can be of considerable interest for quantitative data analyses and it is worth
-# beginning familiar with their storage and manipulation in advance of more sophisticated analyses (e.g. Natural Language Processing).
+# becoming familiar with their storage and manipulation in advance of more sophisticated analyses (e.g. Natural Language Processing).
 
 
 # 1.3.3 Categorical Variables #
@@ -579,7 +594,8 @@ sort(set_5, decreasing = TRUE)
 # Known as factor variables in R (and other packages like Stata etc), 
 # they group observations into exhaustive and mutually exclusive categories.
 # We'll use the forcats package to work with categorical variables in R:
-library(forcats) # not part of the core tidyverse package so we need to load it in separately
+
+library(forcats)
 
 # Create a factor
 
@@ -621,7 +637,7 @@ factor(ses, levels = rev(levels(ses))) # you can also reverse the order of level
 new_ses <- plyr::revalue(ses, c("low" = "small", "middle" = "medium", "high" = "large"))
 print(new_ses)
 levels(new_ses)
-# Note that using the :: notation allows you to access the revalue() function without having to fully load in the plyr package.
+# Note that using the "::" notation allows you to access the revalue() function without having to fully load in the plyr package.
 # There are other ways of recoding categorical variables, none of which (in my opinion) are as easy as Stata's approach.
 
 # Dropping categories with no observations
@@ -637,8 +653,8 @@ droplevels(ses_2)
 save(file="./temp/dw_workspace.RData") # RData is the file extension for a workspace
 load("c:/temp/dw_workspace.RData") # load in a workspace
 
-# However, we should have no need to save the workspace for a data wrangling/analysis piece of work;
-# we simply need our syntax file (R script) and raw data and we should be able to reproduce our project.
+# However, we should have no need to save the workspace for any data wrangling/analysis piece of work;
+# we simply need our syntax/code file (R script) and the raw data, and we should be able to reproduce our project.
 
 # We can save our R script by pressing Ctrl + S (on Windows) or going to the File menu and selecting Save.
 
@@ -656,12 +672,12 @@ example("strtrim") # display example code using this function
 help(mean) # let's dissect the help material for the mean() function
 vignette("dplyr") # some of the better-documented packages provide detailed examples of how to use its functions
 
-# Can't quite remember the name of an object or function?
+# Can't quite remember the full name of an object or function?
 apropos("sum") # returns all objects in the global environment that contain the text "sum"
 
 # If you need help from the web then [insert chosen search engine] is your friend.
 # Likewise, the Stackoverflow website is an excellent source of help on many programming languages and data wrangling/analysis problems.
-# If you experience an error message then follow the above advice by searching for the exact message you receive i.e. don't paraphrase
+# If you experience an error message then try searching for the exact message you receive i.e. don't paraphrase
 # your issue.
 
 
@@ -669,7 +685,7 @@ apropos("sum") # returns all objects in the global environment that contain the 
 
 # To execute R code: highlight the syntax and press Ctrl + Enter.
 
-# To execute the entire R script (i.e. all of the code in one): press Ctrl + Shift + S.
+# To execute the entire R script (i.e. all of the code in one gp): press Ctrl + Shift + S.
 
 # To insert the assignment operator (i.e '<-'): press Alt + minus key (-).
 
@@ -691,10 +707,10 @@ apropos("sum") # returns all objects in the global environment that contain the 
 # 1.8 Debugging #
 
 # This is the computer science term for dealing with code issues. R likes to tell you when something is not quite right,
-and not always in an intelligble manner. As progress with this workshop, you are likely to encounter the following results:
-#	- message: R is communicating a diagnostic message relating to your code; your commands still execute.
-#	- warning: R is highlighting an error/issue with your code, your commands still execute but the warnings need addressing.
-#	- error: R is telling you there has been a fatal error with your code; your commands do not execute.
+and not always in an intelligible manner. As you progress through the workshop, you are likely to encounter the following results:
+#	- message: R is communicating a diagnostic message relating to your code; your command still executes.
+#	- warning: R is highlighting an error/issue with your code, your command still executes but the warnings need addressing at some point.
+#	- error: R is telling you there has been a fatal error with your code; your command does not execute.
 
 # Let's look at a simple example:
 log(-1) # take the natural log of -1
@@ -731,16 +747,17 @@ help(options)
 options() # wide range of options for displaying results etc
 options(digits=3) # change a specific option (i.e. number of digits to print on output)
 options(max.print = 9999) # set maxmimum number of rows to print to the console as 9999
+options(scipen=999) # change formatting display of numbers (no scientific notation)
 
 
 # 1.11 Data Wrangling Examples #
 
-# Congratulations on getting through the technical (boring) bit of the first activity. To whet your appetite, here are
+# Congratulations on getting through the technical bit of the first activity. To whet your appetite, here are
 # some examples of the techniques you will learn over the course of the workshop.
 
 # Importing data
 
-# Importing as a csv file
+# Importing a csv file
 
 auto <- read_csv("./data_raw/auto.csv")
 str(auto)
@@ -770,7 +787,7 @@ read_rds("./data_clean/auto2.rds") # load in the R data file
 
 # Data sets are known as "data frames" in R/Python and are usually imported into R using various functions (e.g. read_csv()).
 # However we can also create our own data frames using data.frame(); this comes in handy
-# not only for teaching purposes but also for simulation and exploration purposes.
+# not only for teaching purposes but also for simulation and testing.
 
 df <- data.frame(col1 = 1:3,
                  col2 = c("this", "is", "text"),
@@ -804,7 +821,7 @@ auto
 
 print(auto, n = Inf, width = Inf) # n controls the number of rows, and width the number of columns; 'Inf' tells print to display
 # all rows and columns.
-# Surpressing data display is a good default when working large data sets. However, you can override the default settings and
+# Surpressing data display is a good default when working with large data sets. However, you can override the default settings and
 # tell RStudio to always print the entire tibble:
 # options(tibble.print_min = Inf)
 # options(tibble.width = Inf)
@@ -815,7 +832,7 @@ auto$price # by name
 auto[["price"]] # by name
 auto[[1]] # by column position
 
-# New R functions used in this section:
+# Exmaples of new R functions used in this section:
 
 #	- length() - return the length of an object
 #	- rm() - remove an object from the workspace environment
@@ -843,25 +860,31 @@ auto[[1]] # by column position
 # Wickham's dictum: Tidy datasets are all alike, but every messy dataset is messy in its own way.
 
 # In this section we focus on the many tasks associated with wrangling or marshalling your data into a format suitable for analysis.
-# In R-speak, this means constructing a "tidy" data set. This format will be familiar to you. A tidy data set is one that:
-#	- is rectangular or tabular:
-#		o every value has its own cell
-#		o every variable has its own column
-#		o every observation has its own row
-# Social scientists are fluent in this format but as the known universe of data expands, corraling untidy data into a tidy format
-# will be a necessary skill. Examples of untidy data sources include text corpora, information scraped from websites etc. However,
+
+# In R-speak, this means constructing a "tidy" data set. This format will be familiar to you. A tidy data set is one that is rectangular or tabular:
+#	- every value has its own cell
+#	- every variable has its own column
+#	- every observation has its own row
+
+# Quantitative social scientists are fluent in working with this format but as the known universe of data expands, 
+# corraling untidy data into a tidy format will be a necessary skill.
+
+# Examples of untidy data sources include text corpora, information scraped from websites etc. However,
 # even "recognisable" data sources can still be untidy e.g. administrative data, social surveys.
 
 # Finally, even if your data set is tabular, the variable names and values still need processing, new measures need to be constructed,
 # additional data sets need to merged or appended etc.
 
 # In this section we focus on importing data, and examining and manipulating variables.
+
 # We are going to work with large-scale, messy and longitudinal administrative data on U.K. charities.
 # A data dictionary can be found on the Charity Commission's website [http://data.charitycommission.gov.uk/data-definition.aspx]
+
 
 # 2.1 Importing Data Sets
 
 # This is the latest copy of the Charity Register i.e. list of all registered charities in England and Wales:
+
 char_reg <- read_csv("./data_raw/extract_main_charity.csv")
 # Ignore the warnings for now; we'll address those later.
 
@@ -880,7 +903,8 @@ comment(char_reg) <- "This dataset contains observations for registered charitie
 attributes(char_reg)
 # TASK: try adding a second comment to the dataset; what happens?
 
-# TASK: import the "extract_remove_ref.csv" file and describe the structure and contents of the data set, and label the data set.
+# TASK: import the "extract_remove_ref.csv" file, describe its structure and contents, and label the data set.
+
 
 # 2.2 Examining Variables
 
@@ -900,34 +924,42 @@ class(char_reg$fyend) # stored as character data type - we want this to be a fac
 
 levels(char_reg$fyend_cat) # hmmm, probably too many categories to be useful; let's drop this new variable:
 char_reg <- within(char_reg, rm(fyend_cat)) # remove the variable from the data set using the rm() function
+# There are a couple of other ways we can delete variables:
+# - char_reg$fyend_cat <- NULL
+# - rm(char_reg$fyend_cat)
+
 names(char_reg) # check if the variable was deleted
 
 # TASK: call the help documentation for the within() function and write a note describing its use.
 
 median(char_reg$income, na.rm = TRUE) # calculate median income, ignoring missing values
-summary(char_reg$income) # summary statistics for annual gross income; however, too difficult to read (in scientific notation)
-options(scipen=999) # change formatting display of numbers (no scientific notation)
+summary(char_reg$income) # summary statistics for annual gross income
+# QUESTION: what is the mean income in the charity sector?
 
-# TASK: run the summary() function once more. What is the mean income in the charity sector?
+char_reg$linc <- log(char_reg$income) # create a new variable that is a log transformation of annual gross income
 
-char_reg$linc <- log(char_reg$income) # create a new variable that is a log transformation of annual gross income;
 # This is often a good idea as charity income is usually heavily positively skewed.
 hist(char_reg$linc) # plot a histogram of log income
 
 # TASK: generate a variable for income squared and plot a histogram of it.
 
 char_reg$highinc <- as.numeric(char_reg$income > 500000) # create a dummy variable that is set to 1 if income > £500k
-table(char_reg$highinc)
+table(char_reg$highinc) # frequency table of high income
 class(char_reg$highinc) # stored as an integer
 
-char_reg$inc_cat <- cut(char_reg$income, breaks = c(0,25000,500000, Inf), labels = c("Small", "Medium", "Large")) # create a categorical variable from income
+# Create an ordered categorical (ordinal) variable from income:
+char_reg$inc_cat <- cut(char_reg$income, breaks = c(0,25000,500000, Inf), labels = c("Small", "Medium", "Large"))
+
 # TASK: describe what the cut() function does and returns. What does "Inf" represent?
+
 summary(char_reg$inc_cat)
 class(char_reg$inc_cat) # stored as a factor
 levels(char_reg$inc_cat)
+table(unclass(char_reg$inc_cat)) # view the underlying codes of the factors
 
-char_reg$inc_cat[char_reg$inc_cat=="Small"] <- "Tiny" # recode one of the values of inc_cat to a different value (i.e. Small to Tiny)
-# EXAMPLE USING RECODE!
+char_reg$inc_cat_r <- char_reg$inc_cat # create a copy of the income category variable
+char_reg$inc_cat_r <- recode(as.integer(char_reg$inc_cat_r), "c(1,2)=0; 3=1") # NEEDS FIXING!
+
 
 # 2.4 Subsettting Data
 
@@ -948,7 +980,7 @@ View(char_reg[char_reg$income >=100000000 & !is.na(char_reg$income), ])
 distinct(char_reg) # drops duplicate rows from the data set
 
 char_reg %>%
-  distinct(regno, .keep_all = TRUE) # drop rows where there are duplicates of charity number; what is this new symbol %>%?
+  distinct(regno, .keep_all = TRUE) # drop rows where there are duplicates of charity number; what is this new symbol "%>%?"
 
 # Piping
 
@@ -961,7 +993,7 @@ char_reg %>%
 #   3. Mutate the data by creating new variables at the current level of grouping. This adds new columns to the table without aggregating it.
 #   4. Summarize or aggregate the grouped data. This creates new variables at a higher level of grouping. For example we might calculate means with mean() or counts with n(). This results in a smaller, summary table, which we might do more things on if we want."
 
-# However, this is simply a taster of the tasks that can be performed while piping.
+# However, this is simply a taster of the tasks that can be performed using the pipe operator.
 
 # The pipe operator = %>% (Ctrl + Shift + M)
 
@@ -974,6 +1006,7 @@ char_reg2 <- char_reg %>%
   distinct(income) # store the results of the distinct command in a new object (char_reg2)
 
 # TASK: explore distinct observations for some of the other variables in the data set.
+
 
 # 2.5 Dealing with Missing Data
 
@@ -1040,11 +1073,6 @@ write_csv(char_reg, "./data_clean/ew-charity-register-201902.csv")
 read_rds("./data_clean/ew-charity-register-201902.rds") # load in the clean data file
 
 
-# New R functions used in this section:
-
-# NOT COMPLETED!!
-
-
 # EXERCISE: 
 # 1. Load in the data file "extract_charity.csv".
 # 2. How many variables does it contain? How many observations?
@@ -1056,6 +1084,7 @@ read_rds("./data_clean/ew-charity-register-201902.rds") # load in the clean data
 
 # Congratulations on reaching the end of Activity Two. If you feel comfortable then feel free to continue
 # a little further with the material. 
+
 
 ### END OF ACTIVITY TWO [ACT002] ###
 
@@ -1069,11 +1098,12 @@ read_rds("./data_clean/ew-charity-register-201902.rds") # load in the clean data
 # 3. Linking and Shaping Data [ACT003] #
 
 # In this section we focus on merging and appending multiple data sets together, as well
-# as reshaping a data set from wide to long (and vice versa).
+# as reshaping a data set from wide to long format (and vice versa).
 
-# Sometimes the data we need for an analysis are stored in separate data sets: either we need additional variables for a set of
+# Sometimes the data we need for analysis are stored in separate data sets: either we need additional variables for a set of
 # observations, or additional observations for the same set of variables. This sounds a little abstract so let's look at examples
 # using administrative data on registered charities in England and Wales.
+
 
 # 3.1 Merging Data Sets #
 
@@ -1081,7 +1111,7 @@ read_rds("./data_clean/ew-charity-register-201902.rds") # load in the clean data
 # merged_data <- merge(df1, df2, by="common id variable"), where df1 = data set #1, df2 = data set #2, "common id variable" = unique
 # identifier of an observation. The data sets must be sorted by this id variable prior to merging.
 
-char_aoo <- read_csv("./data_raw/extract_charity_aoo.csv") # load in record of where a charity operates
+char_aoo <- read_csv("./data_raw/extract_charity_aoo.csv") # load in records of where a charity operates
 View(char_aoo)
 str(char_aoo)
 head(char_aoo)
@@ -1141,6 +1171,7 @@ char_aoo_merge <- char_aoo_merge %>%
 write_rds(char_aoo_merge, "./data_clean/charity-aoo-reference-list-201902.rds") # save the results as a clean data set
 
 # Great, now we have a lookup (reference) file of where a charity operates. Let's merge this with the Charity Register:
+
 char_reg <- read_rds("./data_clean/ew-charity-register-201902.rds") # load in charity register file
 head(char_reg)
 
@@ -1169,6 +1200,7 @@ dim(char_fin) # dimensions of the data set
 char_fin$year <- year(char_fin$fyend) # extract the year from financial year end information
 head(char_fin$year)
 # We'll have a lot more fun with dates during one of tomorrow's activities...
+# If you experience an error here, the first thing to check is: have you loaded the "lubridate" package?
 
 char_fin_2018 <- char_fin %>%
   filter(year == 2018) # create a new data set containing observations for 2018 only
@@ -1193,16 +1225,16 @@ count2018 <- nrow(char_fin_2018)
 # demonstration of appending data sets and other data wrangling functions (e.g. filtering).
 
 # EXERCISE:
-# 1. Split the financial history data set into two separate files: one for 2015 and one 2014.
+# 1. Split the financial history data set into two separate files: one for 2015 and one for 2014.
 # 2. For one of these data sets, drop some of the variables and change the data type of a few others (e.g. make a character variable a factor).
 # 3. Append the data sets together - does it work?
 
 
 # 3.3. Reshaping Data #
 
-# Let's look at the tidyr package and how it can be used to address two common issues:
-#	- one variable is spread across multiple columns
-#	- one observation is spread across multiple rows
+# Let's look at the "tidyr" package and how it can be used to address two common issues:
+#	- when one variable is spread across multiple columns
+#	- when one observation is spread across multiple rows
 
 # 3.3.1 Gathering
 
@@ -1238,7 +1270,7 @@ arrange(tab2_tidy, country, year)
 # That is, making our data set narrower and longer, or wider and shorter.
 
 # Having data in long format (i.e. multiple rows per observation) is necessary for conducting many types of longitudinal statistical modelling, 
-# so it is best to comfortable with reshaping ASAP.
+# so it is best to get comfortable with reshaping ASAP.
 
 # Let's practice using our charity administrative data:
 
@@ -1263,7 +1295,7 @@ char_fin_wide <- char_fin_long %>%
 char_fin_long <- char_fin_long %>%
   distinct(regno, year, .keep_all = TRUE)
 
-# TASK: run the reshape command again.
+# TASK: run the spread() command again.
 
 head(char_fin_wide) 
 names(char_fin_wide) # the naming of the columns isn't great (shouldn't be numbers in general), 
@@ -1286,10 +1318,95 @@ names(char_fin_lagain)
 # And there we have it, back to the original long data set.
 
 
-### END OF ACTIVITY THREE [ACT003] ###
-
 # If you've finished ahead of time then please use this opportunity to revisit
 # troublesome topics/commands and ask the tutors plenty of questions.
+
+
+# Supplementary Material #
+
+# We've conducted a lot of our data wrangling tasks using the "dplyr" package (part of "tidyverse") in combination
+# with the pipe operator.
+
+# Let's delve into the "dplyr" set of functions in more detail:
+
+# There are six core functions (or verbs) that form the essence of data transformation when using dplyr:
+#	1. filter() -> pick certain observations or rows
+#	2. select() -> pick certain variables or columns
+#	3. mutate() -> create new variables
+#	4. arrange() -> reorder observations or rows
+#	5. summarise() -> produce summary statistics for a given set of variables
+#	6. group_by() -> collapse observations or rows into groups (e.g. by ethicity, gender, local authority etc)
+
+# All six work in the same manner:
+#	1. take a data frame as input
+#	2. require one or more variables in order to perform the function
+# 	3. produce a new data frame as a result of executing the function
+
+# 5.1.1 Filtering
+
+filter(flights, month == 1, day == 1) # include observations for January 1st
+# TASK: assign the result of this command to a new object and save as a csv file to the data_raw folder.
+
+# Notice how including more than one argument is equivalent to saying "month == 1 AND day == 1". We could also specify the command
+# as follows:
+filter(flights, month == 1 & day == 1)
+filter(flights, month == 1 | day == 1)
+# QUESTION: how are the results of the second command different from the first? 
+
+# 5.1.2 Selecting
+
+select(flights, year, month, day) # select these three variables
+select(flights, year:day) # select all variables between year and day (inclusive)
+select(flights, -(year:day)) # select all variables except those from year to day (inclusive)
+
+# There are a number of additional functions that help you refine your selection of variables:
+select(flights, starts_with("y")) # select all variables that begin with the letter "y"
+select(flights, contains("ay")) # select all variables that contain the characters "ay" (in that order)
+# You can also employ regular expressions with select(); see the help documentation for more information.
+
+# 5.1.3 Arranging
+
+arrange(flights, year, month, day) # reorder observations by year, then by month, then by day (in ascending order)
+arrange(flights, desc(year, month, day)) # reorder observations by year, then by month, then by day (in descending order)
+
+# 5.1.4 Mutating
+
+mutate(flights, gain = dep_delay - arr_delay,
+  speed = distance / air_time * 60) # create two new variables in the flights data set
+
+# 5.1.5 Summarising
+
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE)) # calculate the mean of dep_delay, ignoring missing values for ths value
+
+# Summarise is much more useful when we combine it with group_by():
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+# TASK: describe the results produced by the above commands.
+
+# Similar to select(), there are a number of additional summary functions that are worth knowing:
+summarise(flights, av_delay = median(dep_delay), iqr_delay = iqr(dep_delay)) # median and interquartile range of departure delays
+summarise(flights, airlines = n_distinct(carrier)) # number of unique airlines
+# There are many more that we do not have the time to cover; see the help documentation for more information.
+
+# 5.1.6 Grouping
+
+# group_by() collapses observations into groups in order to produce summary statistics (e.g. mean age by ethnicity); it is best used in combination
+# with other dplyr functions.
+
+flights_sum <- group_by(flights, year, dest) %>%
+	summarise(count = n())
+
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10) # find the flights with the worst arrival delays
+
+popular_dests <- flights %>% 
+  group_by(dest) %>% 
+  filter(n() > 365) # find the most popular destinations
+popular_dests
+
+
+### END OF ACTIVITY THREE [ACT003] ###
 
 
 ##############################################
@@ -1527,7 +1644,7 @@ char_regd[1:1000,] # view the first 1000 rows
 # We'll take a look at conditionals in more detail during the last activity.
 
 
-### Additional Topic Alert ###
+### Supplementary Material ###
 
 # Only tackle this section if you are feeling confident with the material so far.
 # You will have plenty of time on Day Three during the Hackathon to revisit this section.

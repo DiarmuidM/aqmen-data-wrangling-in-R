@@ -1,0 +1,2078 @@
+# 
+# AQMEN (Data Science for Social Research)
+# http://www.aqmen.ac.uk/
+#
+# 
+# Data Wrangling: Organising and Enabling Data
+# 
+# R and Python Workshop (March 2019)
+# 
+# A three day hands-on workshop led by Dr Diarmuid McDonnell and Professor Vernon Gayle, University of Edinburgh.
+# 
+# 
+# Topics: 
+# 
+# This three-day workshop will provide a fast-track introduction for individuals wishing to learn how to work with data suitable 
+# for statistical analysis of business problems. Preparing and enabling data (data wrangling) is an essential aspect of undertaking 
+# data intensive statistical research. Data wrangling is highly time consuming and can be complex especially when dealing with messy data, 
+# which is often encountered in the non-academic world. 
+#
+# There will be an emphasis on developing accurate, efficient, transparent and reproducible working practices when organising and enabling data.
+# 
+#
+# Rationale: 
+# 
+# The Industrial Strategy recognises that a major challenge facing UK businesses and industry is how best to utilise big data 
+# to improve economic performance and increase productivity. A substantial barrier to exploiting the potential offered by 
+# emerging forms of big data is the lack of a suitably trained workforce with appropriate analytical skills. 
+#
+# Many statistical analysis techniques used in the social sciences are also suitable for working with big data in non-academic settings, 
+# however social science graduates often lack experience in applying their skills and knowledge in non-academic research domains.
+#
+#
+# Advice:
+#
+# The workshop is intended for people who have little prior experience of R.
+#
+# The aim of the workshop is to equip you with a proficiency in data wrangling using R as rapidly and painlessly as possible.
+#
+# Therefore, be good to yourself: we explore a multitude of useful data wrangling techniques that often take most of a semester to cover. 
+#
+# It will NOT be possible to learn everthing in three days (drinks on us if you prove us wrong).
+#
+# Please be patient. Computers often go wrong.
+#
+# Please asks the instructors for help.
+#
+# Feel free to work in pairs during the pratical sessions.
+#
+# Not all of your questions will be answered but we will help as much as we can.
+#
+# Good luck.
+#
+#
+##############################################
+
+
+##############################################
+
+
+
+# Outline of Activities #
+
+# The workshop is based around a series of activities that involve the use of R for organising and enabling administrative data for statistical analysis:
+
+#	1. Getting Started with R: a quick introduction to the R programming language and various data types [ACT001]
+
+#	2. Organising Variables and Measures: how to import and examine data, and handle various types of variables [ACT002]
+
+#	3. Linking and Shaping Data: how to merge and append multiple sources of data [ACT003]
+
+#	4. Dealing with Temporal Data: tools and techniques for working with dates [ACT004]
+
+#	5. Harvesting Web-based Data: how to use Python for accessing information from websites and online databases (APIs) [ACT005]
+
+#	6. Automating Data Wrangling Operations: how to improve the efficiency of your code through loops and functions [ACT006]
+
+#	7. Hackathon: two blocks of time where participants will tackle a data wrangling challenge using administrative data [ACT007]
+
+# If you want to jump to a section: press Ctrl + F and search for the activity code e.g. [ACT001].
+
+
+##############################################
+
+
+##############################################
+#
+#
+# We suggest that you make a copy of this file.
+#
+#
+# ##############################################
+# # IT IS IMPORTANT THAT YOU READ THIS HANDOUT #
+# # AND FOLLOW THE R FILE LINE BY LINE! #
+# ##############################################
+# 
+# The file is sequential. It MUST be run line by line. 
+# Many of the commands will NOT run if earlier lines of commands have not been executed.
+#
+# Anotate your new copy of the file as you work through it with your own notes 
+# (use "#" to comment out your notes).
+#
+#
+# Throughout the file there are markers requiring your input:
+#	- TASK: a coding task for you to complete (e.g. create new variables)
+#	- QUESTION: a question regarding your interpretation of some code or a technique (e.g. what is the above loop doing?)
+#	- EXERCISE: a data wrangling challenge for you to complete at the end of an activity
+#
+# 
+# ON WITH THE SHOW!
+#
+#
+##############################################
+
+
+##############################################
+
+
+# 0. Software Demonstration #
+
+
+# 0.1 System Setup #
+
+# Create a R project folder/directory
+
+# Open RStudio and follow these instructions:
+# 	- File > New Project
+#	- Create project directory
+
+getwd() # tells us the current working directory i.e. workspace
+# setwd("C:/Users/mcdonndz-local/Desktop/temp") # set the working directory to a specified directory; however we have no need to
+# do this as we have already set up a directory to store all of the components of our R project.
+
+folders = c('data_raw', 'data_clean', 'temp', 'logs') # create a list with folder names
+for(f in folders) {
+  print(f)
+  dir.create(f)
+} # take a look at the bottom right-hand panel in RStudio (or the directory on your machine) to check if the folders were created
+
+# Creating and saving files
+
+data <- file.create("./temp/sampdata.csv")
+write.csv(data, "./temp/sampdata_20190321.csv")
+# Note the use of "." at the beginning of the file path; this signifies that the current working directory
+# should form the first part of the path without needing to be explicitly stated. This is an example of
+# using relative file paths and is considered good practice.
+
+# List all files in your working directory
+
+dir() # list all files in a directory
+head(dir(recursive = TRUE)) # list all files in a directory (including its subdirectories); head() restricts the output to the first few results
+dir(pattern = "\\.csv$", recursive = TRUE) # find all files that end in ".csv"
+# The above command used regular expressions to detect patterns in text.
+
+file.info("./data_raw/sampdata.csv") # displays some basic file information e.g. size, whether it is a folder, created and modified times
+
+# That's enough file management for now. There are lots of other tasks we can perform, such as copying, moving, deleting,
+# opening, checking if a file exists etc, that we do not cover here: see [http://theautomatic.net/2018/07/11/manipulate-files-r/]
+
+# TASK: move the files from the workshop Dropbox folder to the "data_raw" directory you just created.
+
+# New R functions used in this section:
+
+#	- getwd() - provide working directory location
+#	- c() - create a vector of values or objects
+#	- print() - display information on the console
+#	- file.create() - create a file
+#	- write.csv() - export a csv file to a directory
+#	- dir.create() - create a directory
+#	- dir() - list all files in a directory
+#	- head() - list the first few rows (values) of a data frame (object)
+#	- file.info() - display information about a file
+
+
+# 0.2 Installing Packages #
+
+# The real power of using R for data wrangling, visualisation and analysis comes from the universe of user-written packages that are available.
+# A package bundles together code, data, documentation and tests, and provides an easy method to share with others.
+
+# Packages represent both a blessing and a curse: a blessing because it is unlikely you won't be able to find a function you need for your analysis;
+# a curse because it adds a bit of administrative burden to your workflow (i.e. find a package, install it, load it, use it). Also,
+# help documentation is wildly inconsistent across packages. 
+
+# A package only needs to be installed once, but you will need to load it in every time you launch an R session.
+
+my_packages <- c("tidyverse", "car", "haven", "expss", "lubridate", "readxl") # create a list of desired packages
+
+install.packages(my_packages, repos = "http://cran.rstudio.com") # install packages from the CRAN repository
+
+installed.packages() # check which packages have been installed
+
+.libPaths() # check which folder the packages are downloaded to
+
+update.package("tidyverse") # update the tidyverse package
+
+
+# 0.3 Loading Packages #
+
+library(tidyverse) # load in the "tidyverse" package of data wrangling functions
+?tidyverse
+vignette("tidyverse")
+
+# TASK: load in the "car", "haven", and "expss" packages.
+
+# A final note about packages: you'll see mention of executing functions or tasks using base R. This means utilising the functions that come
+# as standard with your version of R. install.packages() and write.csv() are examples of base R functions.
+
+# For the purposes of data wrangling (and most other data analysis tasks, frankly), we will not use base R functions; the reasons will become clear
+# as we progress but it is worth noting that there is more than one way to skin a cat.
+
+# New R functions used in this section:
+
+#	- install.packages() - install R packages
+#	- installed.packages() - display installed R packages
+#	- .libPaths() - display directory of installed R packages
+#	- update.package() - update an installed package
+#	- library() - load in R package
+#	- vignette() - view examples of how to use the function/package (not available for all functions/packages)
+
+
+##############################################
+
+
+##############################################
+
+
+
+# 1. Getting Started with R [ACT001] #
+
+# R is a programming language. It has rules, packages, syntax, complexities, idiosyncracies...
+# It is not particularly easy to learn, nevermind master. 
+# It can seem as if you have to learn everything in order to do anything!
+
+# Persevere: like any language, once you grasp the building blocks you will begin to feel comfortable. All of the fancy models, code and graphs
+# that make it into journal articles, textbooks, presentations etc are just extensions and flourishes added on top of the basic functions and rules.
+
+# The important thing is to expect failure and react accordingly (just like an astronaut).
+
+
+# 1.1 Comments #
+
+# This is a comment
+## This is also a comment
+###### ...you get the idea
+
+# Comments are an important means of documenting your workflow and ensuring others (including future-you) can reproduce your work.
+
+# In RStudio, you can create multiline comments by highlighting the text and pressing Ctr + Shift + C.
+# TASK: convert the text below to a multiline comment.
+
+This should be a comment and not code.
+Excuse me, did you hear me?
+  HELLLOOOO!
+  How rude...
+
+
+# 1.2 Writing Code #
+
+print("Hello World!") # display a message to the console
+
+# To execute (i.e. run) the above code, highlight it and press Ctrl + Enter, or the Run icon in the top-left panel in RStudio.
+
+# TASK: print your own personalised message to the console.
+
+
+# 1.3 Data Types #
+
+# Variables are known as 'objects' in R and can store a wide variety of data types:
+# - numeric
+# - string
+# - boolean 
+# - date etc
+
+# Each data type can have different classes i.e. numeric has integer (whole numbers) and double (decimals).
+
+# We assign a value to an object using the "<-" operator. We can also use "=" but this is best avoided as the equals sign has another use
+# and "<-" is considered standard practice in R.
+
+# 1.3.1 Numeric #
+
+x <- 5 # Integer
+y <- 5.5 # Double or Float
+
+# Notice how RStudio doesn't print the value of x or y. To evaluate the assigment you need to call the object:
+x
+y
+
+# Assign and evaluate in a single command:
+(x <- 5)
+# Our advice is to keep assignment and evaluation commands separate (those parentheses can add confusion and lead to errors) but the choice is yours...
+
+print(x + y) # print ensures the result is displayed in the console or output window
+
+# We can perform calculations using numeric objects:
+x * y
+x / y
+x + y
+x - y
+
+# We can compare objects using a set of comparison operators:
+x == y
+x < y
+x > y
+x != y
+x >= y
+x <= y
+# TASK: document what each of the comparison operators does.
+
+a <- c(1, 4, 9, 12)
+b <- c(4, 4, 9, 13)
+a == b # compares each number in the vector (list) to its corresponding number in the other vector
+
+# Note that logical values TRUE and FALSE equate to 1 and 0 respectively, allowing us to perform arithmetic operations using these results:
+sum(a == b) # 2 instances where the elements of the vector are equal
+
+# To test if two objects are exactly equal:
+identical(x, y)
+
+print(typeof(x))
+print(typeof(y)) # R stores numbers as double class by default; we need to be specific when assigning the object's value(s):
+
+rm("x") # remove the objects from R
+rm("y") # check the environment pane in the top-right hand corner of RStudio to see what objects remain in the global environment
+
+x <- 5L # rather counterintuitively given that it's a letter, the "L" suffix ensures a number is stored as an integer
+y <- 5.5
+print(typeof(x)) # Now it is stored explicitly as an integer; in practice you often do not need to worry about this
+print(typeof(y)) 
+
+# Another approach is to convert an existing object:
+int_var <- 20
+int_var <- as.integer(int_var)
+print(typeof(int_var))
+
+# Vectors provide a means of structuring data types as a list
+
+vec <- 1:10
+print(vec) # creates a vector from 1 to 10; a vector is a list of values stored in a single object
+vec[1] # return the first element in the list
+vec[1:5] # return the first five elements in the list
+vec[-2] # return the values of the vector, excluding the second element
+vec[-1:-5]
+# TASK: describe the results of "vec[-1:-5]".
+
+# The above commands are an example of 'slicing' i.e. accessing a particular element(s) in a vector.
+
+# You can also store objects as a vector:
+ovec <- c(x, y) # combine the objects "x" and "y" in a vector called "ovec"
+ovec
+
+# You can count the number of elements in a vector:
+length(vec)
+
+# You can also drop elements:
+vec <- vec[-2] # note that we overwrite the existing object; we could just as easily assign a new object and preserve the original
+vec2 <- vec[-(4:6)] # drop 4-6 from the vector
+
+# We can perform calculations with vectors:
+a <- c(1, 2, 3, 4, 5)
+b <- c(6, 7, 8, 9, 10)
+c <- c(1, 2, 3)
+
+a + b # adds each element of the vectors together in order (i.e. 1 + 6, 2 + 7 etc)
+# This is known as vectorization and is a very useful property of R.
+
+a + c # generates a warning that the vectors are not multiples of each other (i.e. one has 5 elements, the other 3)
+# When vectors are of unequal length, the shorter vector is "recycled" i.e. goes back to the start.
+
+# Generate a sequence of numbers
+
+sequence <- seq(from = 1, to = 100, by = 5)
+print(sequence) 
+# TASK: describe what the seq() function is doing above.
+# TASK: create a sequence of numbers that starts at 55, ends at 7000, and increases by 55 each time.
+
+# We can also save some typing with the above command:
+sequence <- seq(1, 100, 5)
+# R functions often take one or more arguments, and expect them in a particular order. In this example,
+# the first argument of the seq() function is the "from" option, the second is the "to" option, and the third is the "by" option.
+# As long as we provide the correct number of arguments, R is clever enough to know which number corresponds to which argument.
+
+# Of course, you can always be clear and state the argument you are providing.
+
+# Create a sequence based on repeating or replicating the numbers
+repetition <- rep(1:10, each = 10)
+print(repetition)
+
+# Generating sequences of random numbers
+
+# This is a useful function for performing simulations or generating data for testing ideas and techniques.
+
+# Generate 100 random numbers between 0 and 25 from a uniform distribution i.e. each number has an equal probability of being selected
+runif(100, min = 0, max = 25)
+
+# Generate 100 random numbers between 0 and 25 (with replacement)
+sample(0:25, 100, replace = TRUE)
+
+# Generate 100 random numbers between 0 and 25 (without replacement)
+sample(0:25, 100, replace = FALSE)
+
+# QUESTION: why can we not sample 100 numbers from this range without replacement?
+
+# Generate 1000 random numbers from a normal distribution with a given mean and standard deviation
+normdist <- rnorm(1000, mean = 0, sd = 1)
+hist(normdist) # approximately normal 
+print(summary(normdist))
+
+# Generate a vector of length n displaying the number of successes from a trial of size = 100 with a probabilty of success = 0.5
+rbinom(10, size = 100, prob = 0.5)
+# QUESTION: how many successes were there in 10 trials, each with a sample size of 100?
+
+# Generate a vector of length n displaying the random number of events occuring when lambda (mean count) equals 4.
+rpois(20, lambda = 4)
+# TASK: vary the number of expected events and interpret the results.
+
+# We can reproduce random numbers by setting the seed:
+set.seed(1) # name the random sample "1"
+rsamp1 <- rnorm(n = 10, mean = 0, sd = 1)
+set.seed(1)
+rsamp2 <- rnorm(n = 10, mean = 0, sd = 1)
+print(rsamp1)
+print(rsamp2) # produces the same values in each random sample
+
+# Rounding numbers
+
+x <- c(1, 1.35, 1.7, 2.05, 2.4, 2.75, 3.1, 3.45, 3.8, 4.15, 4.5, 4.85, 5.2, 5.55, 5.9)
+print(x)
+
+# Round to the nearest integer
+round(x) # note how the original object is not altered - run the command "print(x)" to check
+
+# Round up
+ceiling(x)
+
+# Round down
+floor(x)
+
+# Round to a specified decimal
+round(x, digits = 1)
+
+
+# 1.3.2 Strings #
+
+# Strings (text) are stored as the character class in R.
+
+a <- "learning to create" # create string a
+b <- "character strings" # create string b
+paste(a, b) # combine the strings
+
+# Paste character and number strings (converts numbers to character class)
+paste("The life of", pi)
+
+# Paste multiple strings
+paste("I", "love", "R")
+
+# Paste multiple strings with a separating character
+paste("I", "love", "R", sep = "-")
+
+# Converting to strings
+
+a <- "The life of"
+b <- pi
+is.character(b) # check if b is a string
+c <- as.character(b)
+is.character(c)
+
+# Printing strings
+
+print(a)
+print(a, quote = FALSE) # easier to use the command "noquote(a)"
+noquote(a)
+
+cat(a)
+cat(a, "Riley") # the cat function is useful for printing multiple objects in a readable format
+cat(letters)
+
+x <- "Today I am learning how to print strings."
+y <- "Tomorrow I plan to learn about something else."
+z <- "The day after that I will take a break and drink a beer."
+cat(x, y, z, fill = 1) # the fill option specifies line width
+
+# Substituting strings and numbers
+
+x <- "The R package is great"
+sprintf("You know what? %s", x) # think of "%s" as a placeholder for a string stored in an object
+TASK: call the help documentation for the "sprintf()" function.
+
+y <- 0
+sprintf("You know what? I had %d beers last night", y)
+sprintf("Here are some digits from Pi: %f", pi) # "%f" is a placeholder for a number stored in an object
+
+# Counting string elements and characters
+
+length("How many elements are in this string?")
+length(c("How", "many", "elements", "are", "in", "this", "string?"))
+
+nchar("How many characters are in this string?")
+nchar(c("How", "many", "characters", "are", "in", "this", "string?"))
+# Counting elements and characters becomes very useful when constructing loops.
+
+# Special characters
+
+string2 <- 'If I want to include a "quote" inside a string, I use single quotes'
+string3 <- "\""
+string4 <- "\'" # if we want to include a single or double quote in our string we use the backslash (\) to escape the character
+TASK: include a backslash in a string.
+
+x <- c("\"", "\\")
+x
+writeLines(x) # beware that the printed representation of a string is different from the contents of the string itself
+# Special characters are very useful in R but they can throw a spanner in the works; we'll deal more with them later in the workshop.
+
+# String manipulation with stringr
+
+# We can perform a lot of the core string manipulation tasks (e.g. removing whitespace, converting to lowercase etc)
+# using base R functions. However we will use a package that simplifies the syntax: stringr
+
+help("stringr")
+
+# All functions in stringr start with the prefix "str_" and take a vector of strings as the first argument:
+
+x <- "Hello, this is a run-of-the-mill string."
+str_length(x)
+str_c(x, " ", "Not very interesting at all.") # combine strings
+str_sub(x, 1, 10) 
+# QUESTION: what is the str_sub function doing to the string?
+
+y <- c("Hello", "This", "is a bog standard", "string")
+str_subset(y, "[aeiou]") # returns strings matching the pattern i.e. contain a vowel
+str_subset(y, "[qrstuvwxyz]")
+
+# Change text to upper, lower or title case
+uc <- "DOWN WITH THAT SORT OF THING"
+lc <- "careful now"
+str_to_upper(lc)
+str_to_lower(uc)
+str_to_title(uc) 
+# QUESTION: what tv show are those strings referencing an iconic moment from?
+
+# String matching
+
+str_detect(y, "[aeiou]") # tells you if there’s any match to the pattern
+str_count(y, "[aeiou]") # counts how many vowels are in each string
+str_locate(y, "[aeiou]") # gives the position of the first match
+str_extract(y, "[aeiou]") # extracts the text of the first match
+str_match(y, "(.)[aeiou](.)") # extract the characters on either side of the vowel
+str_replace(y, "[aeiou]", "?") # replace first match with a specified character
+str_split(x, "") # split a string into individual characters based on a specified separator
+str_dup(x, times = 10) # duplicates the string n times
+
+# Removing leading and trailing whitespace
+
+text <- c("Text ", " with", " whitespace ", " on", "both ", " sides ")
+print(text)
+
+# Remove whitespaces on both sides
+str_trim(text, side = "both") # other options include "right" and "left"
+str_pad("beer", width = 10, side = "left") # add whitespace on the left of the string
+
+# Set operations for strings
+
+set_1 <- c("lagunitas", "bells", "dogfish", "summit", "odell")
+set_2 <- c("sierra", "bells", "harpoon", "lagunitas", "founders")
+union(set_1, set_2) # list all individual elements from the sets
+intersect(set_1, set_2) # list all common elements from the sets
+setdiff(set_1, set_2) # returns elements in set_1 not in set_2; swap order of sets
+
+# To test if two vectors contain the same elements regardless of order use setequal():
+
+set_3 <- c("woody", "buzz", "rex")
+set_4 <- c("woody", "andy", "buzz")
+set_5 <- c("andy", "buzz", "woody")
+setequal(set_3, set_4)
+
+set_6 <- c("woody", "andy", "buzz")
+identical(set_4, set_6) # check if sets are exactly equal (elements and order)
+
+# Identifying if element is in string
+good <- "andy"
+bad <- "sid"
+is.element(good, set_5) # is the word "andy" in set_5?
+good %in% set_5 # same as above
+# TASK: see if the word "sid" is in set_3.
+
+# Sort a string
+sort(set_5)
+sort(set_5, decreasing = TRUE)
+
+# That's enough of strings. The information they contain can be of considerable interest for quantitative data analyses and it is worth
+# becoming familiar with their storage and manipulation in advance of more sophisticated analyses (e.g. Natural Language Processing).
+
+
+# 1.3.3 Categorical Variables #
+
+# Known as factor variables in R (and other packages like Stata etc), 
+# they group observations into exhaustive and mutually exclusive categories.
+# We'll use the forcats package to work with categorical variables in R:
+
+library(forcats)
+
+# Create a factor
+
+x <- c("male", "female", "female", "male", "female") # list of observations for biological sex
+sex <- factor(x)
+sex
+# QUESTION: how many observations and levels are there for this factor variable?
+
+class(sex) # confirm it is a factor variable
+unclass(sex) # show the underlying values of this variable: female = 1, male = 2 (numeric values are attached to categories alphabetically by default);
+
+# We can change the order in which numbers are attached to categories by specifying the "levels" option:
+sex2 <- factor(x, levels = c("male", "female"))
+levels(sex2)  # display the levels (i.e. categories) of this variable
+summary(sex2) # summarise the variable i.e. frequency count
+
+# We can convert an existing list of strings to a factor variable:
+group <- c("Group1", "Group2", "Group2", "Group1", "Group1")
+group2 <- factor(group)
+levels(group2)
+
+# Instead of numbering categories alphabetically, we can do so according to when a factor first appears:
+las <- c("Glasgow", "Edinburgh", "Aberdeen", "Glasgow", "Orkney", "Edinburgh")
+cat_las <- factor(las, unique(las))
+attributes(cat_las)
+unclass(cat_las)
+
+# Ordering factor variables
+ses <- c("low", "middle", "low", "low", "low", "low", "middle", "low", "middle",
+         "middle", "middle", "middle", "middle", "high", "high", "low", "middle",
+         "middle", "low", "high")
+ses <- factor(ses, levels = c("low", "middle", "high"), ordered = TRUE)
+print(ses) # categories are ordered from "low" to "high"
+factor(ses, levels = rev(levels(ses))) # you can also reverse the order of levels if desired
+
+# Recoding categorical variables
+
+# The "plyr" package is useful for this task:
+new_ses <- plyr::revalue(ses, c("low" = "small", "middle" = "medium", "high" = "large"))
+print(new_ses)
+levels(new_ses)
+# Note that using the "::" notation allows you to access the revalue() function without having to fully load in the plyr package.
+# There are other ways of recoding categorical variables, none of which (in my opinion) are as easy as Stata's approach.
+
+# Dropping categories with no observations
+
+ses_2 <- ses[ses != "middle"] # create a new variable where ses does not equal the value "middle"
+summary(ses_2)
+droplevels(ses_2)
+
+
+# 1.4 Saving Files #
+
+# We can save the current workspace (i.e. all of the objects and/or functions we have created):
+save(file="./temp/dw_workspace.RData") # RData is the file extension for a workspace
+load("c:/temp/dw_workspace.RData") # load in a workspace
+
+# However, we should have no need to save the workspace for any data wrangling/analysis piece of work;
+# we simply need our syntax/code file (R script) and the raw data, and we should be able to reproduce our project.
+
+# We can save our R script by pressing Ctrl + S (on Windows) or going to the File menu and selecting Save.
+
+
+# 1.5 Getting Help #
+
+help.start() # provides general help links
+help.search("regression") # searches the help system for documentation matching a given character string
+
+help("strtrim") # finds help documentation on the "strtrim" function
+?strtrim # another way of searching for help
+example("strtrim") # display example code using this function
+# In RStudio, you can also highlight the function in your code and press F1.
+
+help(mean) # let's dissect the help material for the mean() function
+vignette("dplyr") # some of the better-documented packages provide detailed examples of how to use its functions
+
+# Can't quite remember the full name of an object or function?
+apropos("sum") # returns all objects in the global environment that contain the text "sum"
+
+# If you need help from the web then [insert chosen search engine] is your friend.
+# Likewise, the Stackoverflow website is an excellent source of help on many programming languages and data wrangling/analysis problems.
+# If you experience an error message then try searching for the exact message you receive i.e. don't paraphrase
+# your issue.
+
+
+# 1.6 Keyboard Shortcuts #
+
+# To execute R code: highlight the syntax and press Ctrl + Enter.
+
+# To execute the entire R script (i.e. all of the code in one gp): press Ctrl + Shift + S.
+
+# To insert the assignment operator (i.e '<-'): press Alt + minus key (-).
+
+# To autocomplete your syntax: start typing the name of an object/function and press TAB.
+
+# To insert the pipe operator (%>%): press Ctrl + Shift + M.
+
+
+# 1.7 Troubleshooting #
+
+# If you run some code and nothing happens, check the console (bottom-left pane in RStudio): if you see a plus sign (+) then
+# R thinks you haven't finished writing the command and expects more code. If this happens then press the ESC key to cancel the
+# command.
+
+# R is case sensitive e.g. 'View(data)' displays the data set in a window (similar to the 'browse' function in Stata);
+# 'view(data)' does nothing.
+
+
+# 1.8 Debugging #
+
+# This is the computer science term for dealing with code issues. R likes to tell you when something is not quite right,
+and not always in an intelligible manner. As you progress through the workshop, you are likely to encounter the following results:
+  #	- message: R is communicating a diagnostic message relating to your code; your command still executes.
+  #	- warning: R is highlighting an error/issue with your code, your command still executes but the warnings need addressing at some point.
+  #	- error: R is telling you there has been a fatal error with your code; your command does not execute.
+  
+  # Let's look at a simple example:
+  log(-1) # take the natural log of -1
+# This warning tells you that the output is missing i.e. there is no natural log of a negative number.
+warning() # displays the warnings associated with the most recently executed block of code
+
+# You'll encounter plenty of messages, warnings and errors over the course of this workshop. For now, here is some general
+# advice from Peng (2015) regarding what questions to ask when debugging:
+#	- What was your input? How did you call the function?
+#	- What were you expecting? Output, messages, other results?
+#	- What did you get?
+#	- How does what you get differ from what you were expecting?
+#	- Were your expectations correct in the first place?
+#	- Can you reproduce the problem (exactly)?
+
+
+# 1.9 Environment Objects #
+
+# We can remove some of the objects we've created (i.e. delete variables):
+ls() # list existing objects
+
+a <- "I am a useless object"
+rm("a") # delete the object "a"
+
+exists("x") # check if the object "x" exists
+rm(c("x", "y")) # you can remove multiple objects by using the "c()" function
+
+history(Inf) # displays all of the commands executed in this R session
+
+
+# 1.10 Workspace Options #
+
+help(options)
+options() # wide range of options for displaying results etc
+options(digits=3) # change a specific option (i.e. number of digits to print on output)
+options(max.print = 9999) # set maxmimum number of rows to print to the console as 9999
+options(scipen=999) # change formatting display of numbers (no scientific notation)
+
+
+# 1.11 Data Wrangling Examples #
+
+# Congratulations on getting through the technical bit of the first activity. To whet your appetite, here are
+# some examples of the techniques you will learn over the course of the workshop.
+
+# Importing data
+
+# Importing a csv file
+
+auto <- read_csv("./data_raw/auto.csv")
+str(auto)
+auto
+
+# Exporting data
+
+# Exporting as a csv file
+
+write_csv(auto, "./data_clean/auto2.csv")
+# write_csv() has two useful properties:
+#	- it encodes strings in UTF-8
+#	- it encodes dates as ISO8601
+# Both of these mean that the resulting file can be easily parsed by other languages/programs.
+
+# Exporting as a xlsx file
+
+library(readxl)
+write_xlsx(auto, file = "./data_clean/auto2.xlsx")
+
+# Exporting as an R file
+
+write_rds(auto, "./data_clean/auto2.rds") # save the auto data set as an R data file
+read_rds("./data_clean/auto2.rds") # load in the R data file
+
+# Create a data set
+
+# Data sets are known as "data frames" in R/Python and are usually imported into R using various functions (e.g. read_csv()).
+# However we can also create our own data frames using data.frame(); this comes in handy
+# not only for teaching purposes but also for simulation and testing.
+
+df <- data.frame(col1 = 1:3,
+                 col2 = c("this", "is", "text"),
+                 col3 = c(TRUE, FALSE, TRUE),
+                 col4 = c(2.5, 4.2, pi))
+# TASK: describe the structure of this data frame. Hint: use "str(df)".
+
+nrow(df) # return the number of rows in the data set
+ncol(df) # return the number of columns in the data set
+
+
+# Storing data as tibbles
+
+# A tibble (sounds like how an aristcrat pronounces "table") is a data frame that is very well suited to the tidyverse suite of functions.
+# It has a number of properties that makes it preferable to the use of base R data frames 
+# e.g. it doesn't convert strings to factors or change the names of variables.
+
+# Creating tibbles
+
+auto <- read_csv("./data_raw/auto.csv")
+str(auto)
+
+auto <- as_tibble(auto)
+str(auto)
+
+# Viewing tibbles
+
+auto 
+# tibble automatically restricts the display of the data to ten rows and as many columns that fit the console window. It also displays
+# the variable type underneath the variable name (e.g. dbl, chr, date, int).
+
+print(auto, n = Inf, width = Inf) # n controls the number of rows, and width the number of columns; 'Inf' tells print to display
+# all rows and columns.
+# Surpressing data display is a good default when working with large data sets. However, you can override the default settings and
+# tell RStudio to always print the entire tibble:
+# options(tibble.print_min = Inf)
+# options(tibble.width = Inf)
+
+# Accessing tibble variables
+
+auto$price # by name
+auto[["price"]] # by name
+auto[[1]] # by column position
+
+# Exmaples of new R functions used in this section:
+
+#	- length() - return the length of an object
+#	- rm() - remove an object from the workspace environment
+#	- read_csv() - import csv files into R
+#	- export_csv() - export data as csv files from R
+#	- read_excel() - import xls/xlsx files into R
+#	- write_xlsx() -  export data as xls/xlsx files from R
+#	- options() - change default R settings
+#	- ls() - list objects in workspace environment
+#	- str() - examine the structure of an object
+#	- factor() - create a categorical variable
+#	- class() - return an object's class
+#	- as_tibble() - create a tibble data frame
+#	- data.frame() - create a data frame
+
+
+##############################################
+
+
+##############################################
+
+
+# 2. Organising Variables and Measures [ACT002] #
+
+# Wickham's dictum: Tidy datasets are all alike, but every messy dataset is messy in its own way.
+
+# In this section we focus on the many tasks associated with wrangling or marshalling your data into a format suitable for analysis.
+
+# In R-speak, this means constructing a "tidy" data set. This format will be familiar to you. A tidy data set is one that is rectangular or tabular:
+#	- every value has its own cell
+#	- every variable has its own column
+#	- every observation has its own row
+
+# Quantitative social scientists are fluent in working with this format but as the known universe of data expands, 
+# corraling untidy data into a tidy format will be a necessary skill.
+
+# Examples of untidy data sources include text corpora, information scraped from websites etc. However,
+# even "recognisable" data sources can still be untidy e.g. administrative data, social surveys.
+
+# Finally, even if your data set is tabular, the variable names and values still need processing, new measures need to be constructed,
+# additional data sets need to merged or appended etc.
+
+# In this section we focus on importing data, and examining and manipulating variables.
+
+# We are going to work with large-scale, messy and longitudinal administrative data on U.K. charities.
+# A data dictionary can be found on the Charity Commission's website [http://data.charitycommission.gov.uk/data-definition.aspx]
+
+
+# 2.1 Importing Data Sets
+
+# This is the latest copy of the Charity Register i.e. list of all registered charities in England and Wales:
+
+char_reg <- read_csv("./data_raw/extract_main_charity.csv")
+# Ignore the warnings for now; we'll address those later.
+
+View(char_reg) # browse the data set
+head(char_reg) # view the first few rows of the data set
+tail(char_reg) # view the last few rows of the data set
+names(char_reg) # list of variable names
+str(char_reg) # examine the structure of the data set
+attributes(char_reg) # list the attributes (i.e. metadata) of the data set
+ncol(char_reg) # number of columns
+nrow(char_reg) # number of rows
+order(char_reg$regno) # sort the data set by ascending order of charity number
+
+# We can also add a label or comment to the dataset:
+comment(char_reg) <- "This dataset contains observations for registered charities in England & Wales (February 2019)"
+attributes(char_reg)
+# TASK: try adding a second comment to the dataset; what happens?
+
+# TASK: import the "extract_remove_ref.csv" file, describe its structure and contents, and label the data set.
+
+
+# 2.2 Examining Variables
+
+str(char_reg) # list the variables and their data type
+class(char_reg$income) # list the class of the income variable - it is numeric
+# Note the use of $col_name suffix to access variables in the data set i.e. data$variable.
+
+(var_lab(char_reg$income) <- "Latest annual gross income of a charity") # add a variable label using var_lab() function from "expss" package
+unlab(char_reg$income) # drop the variable label
+
+# TASK: add labels for all of the variables; refer to the data dictionary to understand the meaning of each column.
+
+head(char_reg$fyend) # day and month of a charity's financial year end
+class(char_reg$fyend) # stored as character data type - we want this to be a factor (categorical) variable
+(char_reg$fyend_cat <- as.factor(char_reg$fyend)) # create a new variable
+# QUESTION: what is the effect of enclosing the command in parentheses?
+
+levels(char_reg$fyend_cat) # hmmm, probably too many categories to be useful; let's drop this new variable:
+char_reg <- within(char_reg, rm(fyend_cat)) # remove the variable from the data set using the rm() function
+# There are a couple of other ways we can delete variables:
+# - char_reg$fyend_cat <- NULL
+# - rm(char_reg$fyend_cat)
+
+names(char_reg) # check if the variable was deleted
+
+# TASK: call the help documentation for the within() function and write a note describing its use.
+
+median(char_reg$income, na.rm = TRUE) # calculate median income, ignoring missing values
+summary(char_reg$income) # summary statistics for annual gross income
+# QUESTION: what is the mean income in the charity sector?
+
+char_reg$linc <- log(char_reg$income) # create a new variable that is a log transformation of annual gross income
+
+# This is often a good idea as charity income is usually heavily positively skewed.
+hist(char_reg$linc) # plot a histogram of log income
+
+# TASK: generate a variable for income squared and plot a histogram of it.
+
+char_reg$highinc <- as.numeric(char_reg$income > 500000) # create a dummy variable that is set to 1 if income > £500k
+table(char_reg$highinc) # frequency table of high income
+class(char_reg$highinc) # stored as an integer
+
+# Create an ordered categorical (ordinal) variable from income:
+char_reg$inc_cat <- cut(char_reg$income, breaks = c(0,25000,500000, Inf), labels = c("Small", "Medium", "Large"))
+
+# TASK: describe what the cut() function does and returns. What does "Inf" represent?
+
+summary(char_reg$inc_cat)
+class(char_reg$inc_cat) # stored as a factor
+levels(char_reg$inc_cat)
+table(unclass(char_reg$inc_cat)) # view the underlying codes of the factors
+
+char_reg$inc_cat_r <- char_reg$inc_cat # create a copy of the income category variable
+char_reg$inc_cat_r <- recode(as.integer(char_reg$inc_cat_r), "c(1,2)=0; 3=1") # NEEDS FIXING!
+
+
+# 2.4 Subsettting Data
+
+char_reg_sub <- subset(char_reg, select = c(regno, income, fyend)) # keep certain variables
+str(char_reg_sub)
+
+char_reg_fil <- subset(char_reg, income >= 500000) # keep certain observations
+summary(char_reg_fil$income)
+
+View(char_reg[char_reg$income >=100000000 & !is.na(char_reg$income), ])
+# Note the use of "[]" as another means of subsetting the data set. The above command displays the observations where
+# income is greater than £100m and income is not missing.
+
+# TASK: drop the "char_reg_sub" and "char_reg_fil" objects from the workspace.
+
+# Dealing with duplicates
+
+distinct(char_reg) # drops duplicate rows from the data set
+
+char_reg %>%
+  distinct(regno, .keep_all = TRUE) # drop rows where there are duplicates of charity number; what is this new symbol "%>%?"
+
+# Piping
+
+# No, not the Scottish kind... Think of piping as a process for combining multiple functions in one command. It takes
+# data as an input, transfers it into some functions, and converts it into some results (like a pipeline). 
+# In the words of Healy (2019):
+# "A pipeline is typically a series of operations that do one or more of four things:
+#   1. Group the data into the nested structure we want for our summary, such as “Religion by Region” or “Authors by Publications by Year”.
+#   2. Filter or select pieces of the data by row, column, or both. This gets us the piece of the table we want to work on.
+#   3. Mutate the data by creating new variables at the current level of grouping. This adds new columns to the table without aggregating it.
+#   4. Summarize or aggregate the grouped data. This creates new variables at a higher level of grouping. For example we might calculate means with mean() or counts with n(). This results in a smaller, summary table, which we might do more things on if we want."
+
+# However, this is simply a taster of the tasks that can be performed using the pipe operator.
+
+# The pipe operator = %>% (Ctrl + Shift + M)
+
+# Piping is slightly abstract at first glance, so let's dig into some more examples:
+
+char_reg %>%
+  distinct(income) # we can see that the results of this command greatly reduces the size of the data set (79,919 rows)
+
+char_reg2 <- char_reg %>%
+  distinct(income) # store the results of the distinct command in a new object (char_reg2)
+
+# TASK: explore distinct observations for some of the other variables in the data set.
+
+
+# 2.5 Dealing with Missing Data
+
+# Think of missing values as being of two types:
+#	1. Explicitly missing
+#	2. Implicitly missing
+# The former is the presence of an absence (i.e. missing values are flagged as NA or 99), the latter the absence of a presence (i.e.
+# we do not possess an observation for that person for whatever reason).
+
+# In R, missing values are often represented by NA or some other user-specified value (e.g. 99).
+# Missing values are problematic as any the result of any operation involving them will also be missing (unknown). For example:
+x <- NA
+y <- NA
+x + 10
+y - 500
+NA == NA
+
+is.na(char_reg$income) # identify which values of the variable are missing
+which(is.na(char_reg$income)) # identify where in the variable the missing values are (i.e. the row number)
+sum(is.na(char_reg$income)) # count the number of missing values
+# Note how we wrapped the is.na() function inside the sum() function. This is a powerful feature of R and should be
+# kept in mind as you progress.
+
+# TASK: count the number of missing values for charity number, income date and email.
+
+# We can also use the complete.cases() function to identify and exclude rows with missing values:
+complete.cases(char_reg) # rows three and four have missing values for some/all of their variables
+char_reg[!complete.cases(char_reg), ] # list missing rows
+# Note the use of "!" in the above command: this is a logical negation e.g. NOT EQUALS. In the case above, the "!"
+# is returning the opposite of complete.cases().
+
+char_reg_nomiss <- na.omit(char_reg) # list non-missing rows
+nrow(char_reg_nomiss)
+
+# QUESTION: how many observations in the data set have no missing values for all of the variables?
+# TASK: create a new data set that only contains observations for which we have non-missing values for income.
+
+# We can exclude missing values from calculations and functions as follows:
+mean(char_reg$income)
+# QUESTION: why is the mean() function not returning a numeric value?
+
+mean(char_reg$income, na.rm = TRUE)
+
+# We can recode missing values quite easily:
+char_reg$income[is.na(char_reg$income)] <- -9 # recode missing to -9
+View(char_reg$income[char_reg$income==-9])
+
+char_reg$income[char_reg$income==-9] <- -NA # recode -9 as missing
+
+# TASK: recode 0 as missing for income.
+
+# How you conceptualise and handle missing data has significant implications for the validity of your findings.
+# We suggest reading some of the guidance provided by UCLA's Institute for Digital Research and Education (IDRE)
+# [https://stats.idre.ucla.edu/stata/seminars/mi_in_stata_pt1_new/]
+
+
+# 2.6 Saving Data
+
+# We have conducted some basic but effective data wrangling work on our raw data - time to save the results:
+
+write_rds(char_reg, "./data_clean/ew-charity-register-201902.rds") # save as an R file
+write_csv(char_reg, "./data_clean/ew-charity-register-201902.csv")
+
+read_rds("./data_clean/ew-charity-register-201902.rds") # load in the clean data file
+
+
+# EXERCISE: 
+# 1. Load in the data file "extract_charity.csv".
+# 2. How many variables does it contain? How many observations?
+# 3. Create a subset of this data set containing only registered charities.
+# 4. Drop duplicate observations in the data set.
+# 5. Produce a histogram of the number of subsidiaries a charity has.
+# HINT: don't forget to use the data dictionary if you are unsure what the data set or variables represent.
+
+
+# Congratulations on reaching the end of Activity Two. If you feel comfortable then feel free to continue
+# a little further with the material. 
+
+
+### END OF ACTIVITY TWO [ACT002] ###
+
+
+##############################################
+
+
+##############################################
+
+
+# 3. Linking and Shaping Data [ACT003] #
+
+# In this section we focus on merging and appending multiple data sets together, as well
+# as reshaping a data set from wide to long format (and vice versa).
+
+# Sometimes the data we need for analysis are stored in separate data sets: either we need additional variables for a set of
+# observations, or additional observations for the same set of variables. This sounds a little abstract so let's look at examples
+# using administrative data on registered charities in England and Wales.
+
+
+# 3.1 Merging Data Sets #
+
+# The syntax (base R):
+# merged_data <- merge(df1, df2, by="common id variable"), where df1 = data set #1, df2 = data set #2, "common id variable" = unique
+# identifier of an observation. The data sets must be sorted by this id variable prior to merging.
+
+char_aoo <- read_csv("./data_raw/extract_charity_aoo.csv") # load in records of where a charity operates
+View(char_aoo)
+str(char_aoo)
+head(char_aoo)
+
+# Drop unneccessary variables
+
+char_aoo <- char_aoo %>%
+  select(regno, aootype, aookey)
+
+# TASK: list the names of the variables in the overwritten data set.
+
+# Sort data set by aootype and aookey
+
+char_aoo <- char_aoo %>%
+  arrange(aootype, aookey)
+# A = wide, B = Local authority, C = GLA/met county, D = country, E = continent.
+
+write_rds(char_aoo, "./temp/char_aoo_merge.rds") # save the data set in preparation for merging
+
+# Prepare second data set
+
+aoo_ref <- read_csv("./data_raw/extract_aoo_ref.csv") # load in reference list for where a charity operates
+View(aoo_ref)
+str(aoo_ref)
+head(aoo_ref)
+nrow(aoo_ref)
+
+# Drop unneccessary variables
+
+aoo_ref <- aoo_ref %>%
+  select(aootype, aookey, aooname)
+
+# TASK: list the names of the variables in the overwritten data set.
+
+# Sort data set by aootype and aookey
+
+aoo_ref <- aoo_ref %>%
+  arrange(aootype, aookey)
+
+write_rds(aoo_ref, "./temp/aoo_ref_merge.rds") # save the data set in preparation for merging
+
+# Load in original data set and merge with list of reference codes
+
+(char_aoo <- read_rds("./temp/char_aoo_merge.rds"))
+
+char_aoo_merge <- merge(char_aoo, aoo_ref, by = c("aootype", "aookey")) # merge the data sets
+View(char_aoo_merge)
+names(char_aoo_merge)
+class(char_aoo_merge$aooname) # now we have a string variable capturing where a charity operates
+
+char_aoo_merge <- char_aoo_merge %>% 
+  distinct(regno, .keep_all = TRUE) # drop duplicate observations of charity number
+
+char_aoo_merge <- char_aoo_merge %>% 
+  arrange(regno) # sort data set by charity number
+
+write_rds(char_aoo_merge, "./data_clean/charity-aoo-reference-list-201902.rds") # save the results as a clean data set
+
+# Great, now we have a lookup (reference) file of where a charity operates. Let's merge this with the Charity Register:
+
+char_reg <- read_rds("./data_clean/ew-charity-register-201902.rds") # load in charity register file
+head(char_reg)
+
+char_reg <- char_reg %>% 
+  arrange(regno) # sort data set by charity number
+
+char_reg <- merge(char_reg, char_aoo_merge, id = "regno")
+View(char_reg)
+names(char_reg)
+nrow(char_reg)
+
+# And there we have it: a simple way of combining three data sets into one.
+
+# EXERCISE:
+# 1. Merge "extract_class" and "extract_class_ref" data sets to create a reference file. 
+# 2. Merge this reference data set with the charity register.
+
+
+# 3.2 Appending Data Sets #
+
+char_fin <- read_csv("./data_raw/extract_financial.csv") # load in longitudinal data on charity financial returns
+head(char_fin)
+dim(char_fin) # dimensions of the data set
+
+# Let's split the data set by financial year:
+char_fin$year <- year(char_fin$fyend) # extract the year from financial year end information
+head(char_fin$year)
+# We'll have a lot more fun with dates during one of tomorrow's activities...
+# If you experience an error here, the first thing to check is: have you loaded the "lubridate" package?
+
+char_fin_2018 <- char_fin %>%
+  filter(year == 2018) # create a new data set containing observations for 2018 only
+
+write_rds(char_fin_2018, "./temp/financial-data-2018.rds") # save as an R file
+
+# Now let's do the same for 2017 observations:
+char_fin_2017 <- char_fin %>%
+  filter(year == 2017)
+
+write_rds(char_fin_2017, "./temp/financial-data-2017.rds") # save as an R file
+
+# Append the two data sets together
+
+char_fin_1718 <- rbind(char_fin_2017, char_fin_2018)
+total <- nrow(char_fin_1718)
+count2017 <- nrow(char_fin_2017)
+count2018 <- nrow(char_fin_2018)
+(count2017 + count2018) == total # check if the append worked correctly
+
+# Obviously this was an artificial example as the financial data set didn't need to be split. However it is a good 
+# demonstration of appending data sets and other data wrangling functions (e.g. filtering).
+
+# EXERCISE:
+# 1. Split the financial history data set into two separate files: one for 2015 and one for 2014.
+# 2. For one of these data sets, drop some of the variables and change the data type of a few others (e.g. make a character variable a factor).
+# 3. Append the data sets together - does it work?
+
+
+# 3.3. Reshaping Data #
+
+# Let's look at the "tidyr" package and how it can be used to address two common issues:
+#	- when one variable is spread across multiple columns
+#	- when one observation is spread across multiple rows
+
+# 3.3.1 Gathering
+
+# The gather() function helps us address the first issue above. An example would be when there are multiple income variables
+# e.g. inc2011, inc2012 etc. In this instance it would be better to "gather" these values as follows:
+incdata <- tibble(pid = 1:3, inc2011 = c(10000, 25000, 98000), inc2012 = c(11000, 30000, 98000), 
+                  inc2013 = c(10000, 0, 100000), inc2014 = c(15000, 21000, 101000)) # create a tibble of sample data
+incdata
+
+inc_tidy <- incdata %>%
+  gather(inc2011:inc2014, key = "year", value = "annual income")
+arrange(inc_tidy, pid, year)
+
+# gather() takes three parameters:
+#	1. the variables you wish to gather the values of
+#	2. the name of the variable that distinguishes values of the gathered variables (key)
+#	3. the name of the variable(s) that stores the values of the gathered variables (value)
+
+# 3.3.2 Spreading
+
+# This is the opposite of gathering, and addresses the second issue above i.e. multiple rows per observation.
+table2 # here the "type" column actually houses two variables: cases and population
+
+tab2_tidy <- table2 %>%
+  spread(key = type, value = count)
+arrange(tab2_tidy, country, year)
+
+# spread() takes two parameters:
+#	1. the name of the variable containing multiple variables (key)
+#	3. the name of the variable that stores the values of the key variable (value)
+
+# Perhaps you've already noticed what we're doing goes by another name: reshaping your data to long or wide format.
+# That is, making our data set narrower and longer, or wider and shorter.
+
+# Having data in long format (i.e. multiple rows per observation) is necessary for conducting many types of longitudinal statistical modelling, 
+# so it is best to get comfortable with reshaping ASAP.
+
+# Let's practice using our charity administrative data:
+
+# Long to wide
+
+char_fin <- read_csv("./data_raw/extract_financial.csv") # load in longitudinal data on charity financial returns
+head(char_fin)
+dim(char_fin)
+
+char_fin$year <- year(char_fin$fyend) # extract the year from financial year end information
+
+arrange(char_fin, regno, year)
+# The data set is currently in long format i.e. multiple rows per charity. Let's reshape it to wide format:
+
+char_fin_long <- char_fin %>% 
+  select(regno, year, income) # keep certain variables
+head(char_fin_long)
+
+char_fin_wide <- char_fin_long %>%
+  spread(year, income) # uh oh, looks like not all rows are uniquely identified by charity number and year
+
+char_fin_long <- char_fin_long %>%
+  distinct(regno, year, .keep_all = TRUE)
+
+# TASK: run the spread() command again.
+
+head(char_fin_wide) 
+names(char_fin_wide) # the naming of the columns isn't great (shouldn't be numbers in general), 
+# but that is a minor data wrangling task.
+
+# Wide to long
+
+char_fin_lagain <- char_fin_wide %>% 
+  gather(year, income, `2003`:`2020`) # `2003`:`2020` tells the command to gather all variables in this range
+# Note the use "``" (backticks) to reference the names of the year variables. This is necessary when a variable name
+# is not valid e.g. starts with a number, contains a space.
+
+char_fin_lagain <- char_fin_lagain %>% 
+  select(regno, year, income) %>% # drop 'NA' column (this represented observations with missing data for "year")
+  arrange(regno, year)
+
+head(char_fin_lagain) 
+names(char_fin_lagain)
+
+# And there we have it, back to the original long data set.
+
+
+# If you've finished ahead of time then please use this opportunity to revisit
+# troublesome topics/commands and ask the tutors plenty of questions.
+
+
+# Supplementary Material #
+
+# We've conducted a lot of our data wrangling tasks using the "dplyr" package (part of "tidyverse") in combination
+# with the pipe operator.
+
+# Let's delve into the "dplyr" set of functions in more detail:
+
+# There are six core functions (or verbs) that form the essence of data transformation when using dplyr:
+#	1. filter() -> pick certain observations or rows
+#	2. select() -> pick certain variables or columns
+#	3. mutate() -> create new variables
+#	4. arrange() -> reorder observations or rows
+#	5. summarise() -> produce summary statistics for a given set of variables
+#	6. group_by() -> collapse observations or rows into groups (e.g. by ethicity, gender, local authority etc)
+
+# All six work in the same manner:
+#	1. take a data frame as input
+#	2. require one or more variables in order to perform the function
+# 	3. produce a new data frame as a result of executing the function
+
+# 5.1.1 Filtering
+
+filter(flights, month == 1, day == 1) # include observations for January 1st
+# TASK: assign the result of this command to a new object and save as a csv file to the data_raw folder.
+
+# Notice how including more than one argument is equivalent to saying "month == 1 AND day == 1". We could also specify the command
+# as follows:
+filter(flights, month == 1 & day == 1)
+filter(flights, month == 1 | day == 1)
+# QUESTION: how are the results of the second command different from the first? 
+
+# 5.1.2 Selecting
+
+select(flights, year, month, day) # select these three variables
+select(flights, year:day) # select all variables between year and day (inclusive)
+select(flights, -(year:day)) # select all variables except those from year to day (inclusive)
+
+# There are a number of additional functions that help you refine your selection of variables:
+select(flights, starts_with("y")) # select all variables that begin with the letter "y"
+select(flights, contains("ay")) # select all variables that contain the characters "ay" (in that order)
+# You can also employ regular expressions with select(); see the help documentation for more information.
+
+# 5.1.3 Arranging
+
+arrange(flights, year, month, day) # reorder observations by year, then by month, then by day (in ascending order)
+arrange(flights, desc(year, month, day)) # reorder observations by year, then by month, then by day (in descending order)
+
+# 5.1.4 Mutating
+
+mutate(flights, gain = dep_delay - arr_delay,
+       speed = distance / air_time * 60) # create two new variables in the flights data set
+
+# 5.1.5 Summarising
+
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE)) # calculate the mean of dep_delay, ignoring missing values for ths value
+
+# Summarise is much more useful when we combine it with group_by():
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+# TASK: describe the results produced by the above commands.
+
+# Similar to select(), there are a number of additional summary functions that are worth knowing:
+summarise(flights, av_delay = median(dep_delay), iqr_delay = iqr(dep_delay)) # median and interquartile range of departure delays
+summarise(flights, airlines = n_distinct(carrier)) # number of unique airlines
+# There are many more that we do not have the time to cover; see the help documentation for more information.
+
+# 5.1.6 Grouping
+
+# group_by() collapses observations into groups in order to produce summary statistics (e.g. mean age by ethnicity); it is best used in combination
+# with other dplyr functions.
+
+flights_sum <- group_by(flights, year, dest) %>%
+  summarise(count = n())
+
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10) # find the flights with the worst arrival delays
+
+popular_dests <- flights %>% 
+  group_by(dest) %>% 
+  filter(n() > 365) # find the most popular destinations
+popular_dests
+
+
+### END OF ACTIVITY THREE [ACT003] ###
+
+
+##############################################
+
+
+##############################################
+
+
+# AND NOW FOR SOMETHING COMPLETELY DIFFERENT
+
+# Making a near-perfect Yorkshire Pudding - a la Vernon Gayle #
+
+# 3 eggs
+# 115g plain flour
+# 285ml milk
+# 12 tablespoons vegetable oil / I prefer beef dripping
+
+# 1. Whisk the eggs, flour, salt, and milk together really well in a bowl 
+to make your batter. 
+
+# 2. Pour the batter into a jug, and let it sit for 30 minutes before you use it. 
+
+# 3. Turn your oven up to the highest setting and place the baking tray in the 
+oven to heat up for 5 minutes. 
+
+# 4. Place 1 table spoon of oil in each indentation, 
+and put the tray back into the oven and heat until oil is very hot.
+
+# 5. Open oven door, slide the tray out, and carefully pour the batter in. 
+
+# 6. Close the door and cook for 15 minutes without opening the oven door. 
+
+# Serve immediately with roast beef (or similar) veg and gravy.
+
+
+### END OF DAY ONE ###
+
+
+##############################################
+
+
+##############################################
+
+
+### BEGINNING OF DAY TWO ###
+
+
+# REMINDER: this is a new R session and you need to reload (but not reinstall) the packages you need
+# for the upcoming activities. E.g. library(tidyverse)
+
+library(tidyverse)
+library(lubridate)
+
+# 4. Dealing with Temporal Data [ACT004] #
+
+# Dates are tricky buggers to work with no matter what programming language or software package you use. 
+# Thankfully, R has a package - "lubridate" - that simplifies the data wrangling challenges associated with dates.
+
+# 4.1 Dealing with Dates #
+
+# Dates are represented by the Date class and times are represented by the POSIXct or the POSIXlt class. 
+# Dates are stored internally as the number of days since 1970-01-01 while times are stored internally as the number of seconds 
+# since 1970-01-01.
+
+# System properties
+
+Sys.timezone() # what timezone our system is set to
+Sys.Date() # the current date
+Sys.time() # the current date and time
+
+# Converting strings to dates
+
+# This is an important process as dates are often imported in R and other software packages as strings.
+x <- "2015-07-01" # string in YYYY-MM-DD format
+z <- as.Date(x)
+class(z)
+class(x)
+
+y <- "07/01/2015" # string in MM/DD/YYYY format
+z <- as.Date(y, format = "%m/%d/%Y") # specify format of date
+class(z)
+class(y)
+# Now that the information is in date format we can perform calculations involving units of time.
+
+# While we've used the base R functions to work with dates so far, we are better off
+# using a dedicated package for working with this data type: "lubridate"
+# Most of the material in this section is derived from: https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/
+
+library(lubridate) # comes as part of the "tidyverse" collection of data science packages
+?lubridate
+
+begin <- c("May 11, 1996", "September 12, 2001", "July 1, 1988")
+end <- c("7/8/97","10/23/02","1/4/91") # sample observations for the start and end date of a process
+class(begin)
+class(end)
+
+(begin <- mdy(begin)) # convert to date, replacing the original object
+(end <- mdy(end)) # convert to date, replacing the original object
+class(begin)
+class(end)
+
+# The “Date” class means dates are stored as the number of days since January 1, 1970, 
+# with negative values for earlier dates. 
+# We can use the as.numeric function to view the raw values:
+as.numeric(begin)
+as.numeric(end)
+
+# We can also use lubridate for handling dates with hours, minutes and seconds:
+begin <- c("May 11, 1996 12:05", "September 12, 2001 1:00", "July 1, 1988 3:32")
+begin <- mdy_hm(begin)
+class(begin) # the dates are now interpeted as the number of seconds since January 1, 1970
+print(begin)
+
+# 4.2 Peforming Calculations with Dates
+
+# lubridate provides three classes, or three different ways, to distinguish between different types of time spans:
+# 1. Duration
+# 2. Interval
+# 3. Period
+
+# "Understanding these classes will help you get the most out of lubridate:
+
+# The most simple is Duration. This is simply a span of time measured in seconds. There is no start date.
+
+# An Interval is also measured in seconds but has an associated start date. An Interval measures elapsed seconds between two specific points in time.
+
+# A Period records a time span in units larger than seconds, such as years or months. 
+
+# Unlike seconds, years and months are not standardised units of time. For example, June has 30 days while July has 31 days. 
+# February has 28 days except for leap years when it has 29 days. 
+# With the Period class, we can add 1 month to February 1 and get March 1. 
+# It allows us to perform calculations in calendar or clock time as opposed to absolute number of seconds." (Ford, 2017: https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/)
+
+start <- mdy_hm("2-11-2019 5:21")
+end <- mdy_hm("2-12-2019 5:21")
+
+# Calculate interval between these dates
+
+time_interval <- start %--% end # the "%--%" operator calculates the interval between two date objects
+print(time_interval)
+print(str(time_interval)) # examine the structure of the object
+# QUESTION: how many seconds have passed between these dates?
+
+time_period <- as.period(time_interval) # convert interval to a period
+print(time_period)
+str(time_period)
+# QUESTION: how many days have passed between these dates?
+
+time_duration <- as.duration(time_interval)
+print(time_duration) # displays number of seconds in the interval
+
+# We can also use lubridate to extract certain properties of a date object e.g. the year or month
+x <- c("2015-07-01", "2015-08-01", "2015-09-01")
+year(x)
+month(x)
+day(x) # day of the month
+wday(x) # day of the week
+wday(x, label = TRUE, abbr = FALSE) # day of the week with label
+
+# We can alter the values in a date object:
+# update(x, year = c(2013, 2014, 2015), month = 9)
+# print(x) # NOT WORKING
+
+# Lubridate makes it easy to create sequences of dates:
+sampyears <- seq(ymd("2010-1-1"), ymd("2015-1-1"), by = "years")
+print(sampyears)
+sampyears <- seq(ymd("2010-1-1"), ymd("2015-1-1"), by = "months")
+print(sampyears)
+
+# Calculations with dates
+
+# "Since R stores date and time objects as numbers, this allows you to perform various calculations
+# such as logical comparisons, addition, subtraction, and working with durations." (Boehmke, 2016: 71)
+x <- Sys.Date()
+x
+
+y <- as.Date("2015-09-11")
+x > y
+x - y
+y + days(4)
+# TASK: describe the results produced by the above block of code.
+
+# If you're looking for further examples of using lubridate, run the command below:
+# vignette("lubridate")
+
+# For now, let's practice what we've learned using our administrative data.
+
+char_regd <- read_csv("./data_raw/extract_registration.csv", na = "") # load in registration data for charities
+# Note: we can tell R which values represent missing data; in this case blank records represent missing data (see data dictionary).
+
+View(char_regd)
+str(char_regd) # it looks like regdate and remdate are stored as datatime variables
+head(char_regd)
+
+# Calculate charity age
+
+(cdate <- Sys.Date())
+cyear <- year(cdate) # get current year
+char_regd$regy <- year(char_regd$regdate) # extract year from registration date
+char_regd$remy <- year(char_regd$remdate) # year charity was removed from the Register
+
+char_regd <- char_regd %>% 
+  mutate(age = ifelse(is.na(remdate), cyear - regy, remy - regy))
+
+# There's a lot to unpack with the code above:
+# 1. We create a new variable called "age" based on a conditional.
+# 2. The condition is the first argument (i.e. for observations with missing data for "remdate").
+# 3. If the condition is met (i.e. TRUE), then "age" equals "cyear - regy"; otherwise remy - regy".
+# 4. The new variable is added to the existing data set char_regd.
+
+hist(char_regd$age)
+class(char_regd$age)
+# An interesting quirk of charity administrative data is that it underestimates the age of older organisations.
+# The Register of Charities was only constructed in 1961 and this date is often listed as when an organisation came into
+# being as a charity. 
+
+# Calculate charity survival
+
+char_regd <- char_regd %>% 
+  mutate(los = ifelse(!is.na(remy), remy - regy, NA))
+
+# There's a lot to unpack with the code above:
+# 1. We create a new variable called "los" (length of survival) based on a conditional.
+# 2. The condition is the first argument (i.e. for observations with no missing data for "remy").
+# 3. If the condition is met (i.e. TRUE), then "los" equals "remy - regy"; otherwise it takes the value NA.
+# 4. The new variable is added to the existing data set char_regd.
+
+hist(char_regd$los)
+char_regd[1:1000,] # view the first 1000 rows
+
+# TASK: play around with some of the lubridate classes (i.e. as.interval, as.period etc) using the administrative data.
+# For example, how old is a charity in months/days/seconds?
+
+# We've introduced the use of conditionals in tandem with common data wrangling operations (e.g. mutate()).
+# We'll take a look at conditionals in more detail during the last activity.
+
+
+### Supplementary Material ###
+
+# Only tackle this section if you are feeling confident with the material so far.
+# You will have plenty of time on Day Three during the Hackathon to revisit this section.
+
+# Dealing with Text Data #
+
+# Regular Expressions 
+
+# A regular expression (regex/regexp) is a sequence of characters that form a search pattern
+# and is an extremely useful function for pattern matching with text. Think of it as a grammar for detecting patterns in text.
+# There are base functions in R but we can use the "stringr" package for regex purposes also.
+
+library(stringr)
+library(tidyverse)
+
+sdata <- state.name # use the built-in dataset "state.name"
+print(sdata)
+str(sdata)
+
+# Basic matching
+
+str_view(sdata, "or") # find text containing the string "or"
+str_view(sdata, ".r.") # find any three-letter string with "r" in the middle
+# Notice how a "." (period) is a special character in regular expressions.
+# QUESTION: how would you search for a "." using regular expressions?
+
+str_view(sdata, "\\.") # search for a "." in the text
+# A backslash is also a special character in regular expressions, hence the need for two of them in the above code.
+# If you want to find a backslash, you need four backslashes in your search term!
+# An alternative is to enclose a special character in []:
+str_view("My text.", "[.]") # find the "." in the string "My text."
+# This approach doesn't work for the following special characters: ] \ ^ and -
+
+# Anchoring
+
+str_view(sdata, "^N") # finds text where "N" is at the beginning of a string
+str_view(sdata, "k$") # finds text where "k" is at the end of a string
+
+# Character classes and alternatives
+
+# What do we do when we want to match more than one character i.e. find "this" or "that" or "those" in a string?
+# Thankfully, regular expressions provide a simple means of doing so (Grolemund & Wickham, 2017):
+# - \d: matches any digit.
+# - \s: matches any whitespace (e.g. space, tab, newline).
+# - [abc]: matches a, b, or c.
+# - [^abc]: matches anything except a, b, or c.
+
+str_view(c("grey", "gray"), "gr(e|a)y") # find "grey" or "gray" i.e. find "gr" followed by an "e" or an "a" and then a "y"
+str_view("I have 0 dogs and 1 wife in my life", "\\d") # find any digit in the string; it only highlights the first instance however
+str_extract_all("I have 0 dogs and 1 wife in my life", "\\d") # returns all digits to the console
+
+str_view(sdata, "[wxyz]") # finds text containing any of these consonants
+
+# Repetition
+
+# Now we focus on how many times a pattern matches:
+x <- "1888 is the longest year in Roman numerals: MDCCCLXXXVIII"
+str_view(x, "CC?") # matches zero or one times
+str_view(x, "CC+") # matches one or more times
+str_view(x, 'C[LX]+')
+# TASK: describe the results of the above command.
+
+# You can also specify the number of matches precisely (Grolemund & Wickham, 2017):
+# - {n}: exactly n
+# - {n,}: n or more
+# - {,m}: at most m
+# - {n,m}: between n and m
+
+# TASK: using the object x, find two instances of the letter "C", three instances of the letter "X", 
+# and one instance of the letter "I".
+
+# Detect matches
+
+x <- c("apple", "banana", "pear")
+str_detect(x, "e") # returns a logical vector of whether the string contains the letter "e"
+
+words # built-in object containing common words
+str_detect(words, "^t")
+sum(str_detect(words, "^t")) # sum of the number of common words that begin with the letter "t"
+
+# QUESTION: how many common words end in either w, x, y or z?
+# TASK: calculate the proportion of common words that contain the letter "q". HINT: use another arithmetic function.
+
+str_subset(words, "x$") # find the subset of words that end in "x"
+str_count(words, "[aeiou]") # returns how many vowels are in each word
+mean(str_count(words, "[aeiou]")) # returns how many vowels are in each word on average
+
+# Let's combine what we've learned with what we know about data frames (tibbles in particular):
+df <- tibble(
+  word = words, 
+  i = seq_along(word)
+) # create a tibble with two columns: each word and a unique id for it
+df
+
+df %>% 
+  filter(str_detect(word, "x$")) # find rows where the values of word end in "x"; this is equivalent to str_subset(words, "x$")
+
+df %>% 
+  mutate(
+    vowels = str_count(word, "[aeiou]"),
+    consonants = str_count(word, "[^aeiou]")
+  )
+# TASK: explore and describe the results of the above command.
+
+
+# Looking for more string manipulation functions? Look no further than the `stringi` package`, 
+# which has >200 functions. Have fun!  
+
+
+### END OF ACTIVITY FOUR [ACT004] ###
+
+
+
+##############################################
+
+
+##############################################
+
+
+
+# 5. Harvesting Web-based Data [ACT005] #
+
+# Launch Spyder IDE and open the file "aqmen_R_data-wrangling_web-data_201903".
+
+
+### END OF ACTIVITY FIVE [ACT005] ###
+
+
+
+##############################################
+
+
+##############################################
+
+
+
+# 6. Automating Data Wrangling Operations [ACT006] #
+
+# It is vital that we write code that adheres to the "four pillars of wisdom":
+#	- efficient (simplify and rationalise your code as much as possible - "Don't Repeat Yourself")
+#	- effective (minimise information loss by using stored results and other features of the software)
+# 	- transparent (it is obvious what you have done, why, how and when)
+#	- reproducible (code that is legible and documented to a high standard)
+
+# There are a number of options available to us in achieving our aims: functions, loops and other time-saving approaches.
+
+# 6.1 Functions #
+
+# Present Value function i.e. future value of investment divided by interest rate to the power of time
+
+PV <- function(FV, r, n) {
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+body(PV) # the code that is executed when the function is called
+formals(PV) # the arguments the function needs to execute
+environment(PV) # the environment in which the function exists (i.e. global means it can be called from elsewhere in the script, other scripts etc)
+
+# Call the function
+
+PV(1000, .05, 10)
+# QUESTION: how does the function know which argument is which?
+
+# We can specify the values of the arguments as objects outside the function:
+FV <- 1000
+r <- .05
+n <- 10
+
+PV(FV, r, n)
+
+# We can return multiple outputs from a function as a vector or list:
+calculations <- function(x, y) {
+  val1 <- x * y
+  val2 <- 2*x + 2*y
+  val3 <- x / y
+  c(val1, val2, val3)
+}
+
+calculations(10, 5)
+# TASK: remove the final line of code from the body of the function; what result is returned when the function is called?
+
+# Dealing with invalid parameters
+# What happens our PV function if we do not pass it numeric arguments?
+PV(10000, "5", "apple")
+
+# Let's add an if statement and message to the user of the function:
+PV <- function(FV, r, n) {
+  if(!is.numeric(FV) | !is.numeric(r) | !is.numeric(n)){
+    stop('This function only works for numeric inputs!\n',
+         'You have provided objects of the following classes:\n',
+         'FV: ', class(FV), '\n',
+         'r: ', class(r), '\n',
+         'n: ', class(n))
+  }
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+PV(10000, "5", "apple")
+
+# Finally, let's deal with missing values for our arguments
+
+FV <- c(1000, 10000, NA, 100000, NA)
+PV(FV, .03, 25) # returns NA results when FV is missing
+
+# Let's add one more if statement to deal with missing values:
+PV <- function(FV, r, n, na.rm = FALSE) {
+  if(!is.numeric(FV) | !is.numeric(r) | !is.numeric(n)){
+    stop('This function only works for numeric inputs!\n',
+         'You have provided objects of the following classes:\n',
+         'FV: ', class(FV), '\n',
+         'r: ', class(r), '\n',
+         'n: ', class(n))
+  }
+  if(na.rm == TRUE) {
+    FV <- FV[!is.na(FV)]
+  }
+  PV <- FV/(1+r)^n
+  round(PV, 2)
+}
+
+PV(FV, .03, 25, na.rm = TRUE) # no longer displays NA results
+
+# If you like, you can save your function in a R script and call it from other scripts using the
+# 'source("script_name.R")' command, and then execute the function as normal.
+# TASK: save the PV function as an R script, create a blank R script and call the function.
+
+
+# 6.2 Loop Control Statements #
+# Often we would like to execute commands only if a particular condition is true, or only
+# for a range of values, or to perform a task until a certain condition is met.
+
+# 6.2.1 If statements
+
+# General syntax:
+# if (test_expression) {
+#   statement
+# }
+
+# Test whether any values in a vector are negative:
+x <- c(8, 3, -2, 5, -5, 20, 0)
+
+if(any(x < 0)){
+  print("x contains negative numbers")
+}
+# QUESTION: what is the above if statement doing?
+
+# We can specify what to do if the condition is false using the "else" command:
+y <- c(8, 3, 2, 5)
+
+if(any(y < 0)){
+  print("y contains negative numbers")
+} else{
+  print("y contains all positive numbers")
+}
+
+# We can test if multiple conditions are true using the "else if" command:
+x <- 7
+
+if(x >= 10){
+  print("x exceeds acceptable tolerance levels")
+} else if(x >= 0 & x < 10){
+  print("x is within acceptable tolerance levels")
+} else {
+  print("x is negative")
+}
+
+# 6.2.2 For loops
+
+# These are used to execute commands a certain number of times.
+# Syntax of for loop:
+for(i in 1:100) {
+  print(i)
+}
+
+# A useful tip when using for loops is to create an empty object and populate it
+# with the results of the loop, rather than create AND populate the object within the loop.
+
+x <- vector(mode = "numeric", length = 10) # create a blank vector with space for ten elements
+x
+
+for (i in 10) {
+  x <- rnorm(10, mean = 100)
+  print(x)
+}
+# QUESTION: what is the above loop doing?
+
+# For loop to populate an empty matrix:
+my_mat <- matrix(NA, nrow = 5, ncol = 5)
+
+for(i in 1:ncol(my.mat)){
+  my_mat[, i] <- rpois(5, lambda = i)
+}
+my_mat
+
+# We can terminate a loop using the 'break' command:
+x <- 1:10
+x
+
+for (i in x) {
+  if (i == 3){
+    break
+  }
+  print(i)
+}
+
+# We can skip an iteration using the 'next' command:
+for (i in x) {
+  if (i == 3){
+    next
+  }
+  print(i)
+}
+
+# 6.2.3 While loops
+
+# These loops test whether a condition is true; if it is then the loop executes until the condition is no longer true.
+
+# Syntax of while loop:
+counter <- 10
+while(counter < 10) {
+  print(counter)
+  counter <- counter + 1
+}
+# TASK: write down the differences and advantages of a while loop compared to a for loop.
+
+
+# 6.2.4 Apply function
+
+# The apply() function is used to apply a function to the rows or columns of a data frame, matrix or array.
+# Syntax of apply function:
+# apply(x, MARGIN, FUN, ...)
+
+head(mtcars) # examine the first couple of rows of the mtcars data set
+apply(mtcars, 2, mean) # calculate the mean of each column in the data set
+# The MARGIN argument refers to the element of the data set we want to perform the function on:
+# for the mtcars data set "2" refers to the columns.
+
+apply(mtcars, 1, mean) # calculate the mean of each row in the data set; this approach
+# is nonsensical in this example as the variables all measure different concepts.
+# However, it is easy to see how this would be useful when we have longitudinal data in wide format 
+# i.e. each column measures the same concept over different periods of time (e.g. an individual's income over ten years).
+
+apply(mtcars, 2, quantile, probs = c(0.10, 0.25, 0.50, 0.75, 0.90)) # produce quantiles for each column
+
+# Let's add the mean of each row as a new column
+mtcars$mn_row <- apply(mtcars, 1, mean)
+mtcars
+str(mtcars)
+attributes(mtcars)
+# Notice how the apply() function negates the need to loop over every row in order to
+# calculate the mean - this is one of the strenghts of the function.
+
+# There are plenty of other versions of apply() (e.g. tapply(), lapply()) that can be
+# executed on other data structures (e.g. lists, vectors). Take a look at the help files
+# for more information i.e. ?tapply()
+
+# Finally, Base R provides a number of simplified apply() functions for common tasks:
+colSums(mtcars) # is a more efficient way of executing the command below...
+apply(mtcars, 2, sum)
+
+
+# The Pipe Operator (%>%)
+# A further way of simplyfing your code is with the use of the pipe operator (%>%), which
+# enables you to pass the results of one command to a function. Let's look at an example:
+
+colSums(mtcars)
+mtcars %>% colSums() # pass the mtcars object to the colSums() function.
+# The advantage of %>% may not be immediately obvious for short lines of code, but its
+# efficiency becomes clear when executing multiple functions in one go.
+
+head(mtcars)
+
+aggresults <- mtcars %>%
+  filter(carb > 1) %>%
+  group_by(cyl) %>%
+  summarise(Avg_mpg = mean(mpg)) %>%
+  arrange(desc(Avg_mpg))
+
+# TASK: describe each line of the code i.e. what it is doing and then passing to the next function.
+
+aggresults
+
+# Perform a linear regression and summarise the results
+
+mtcars %>%
+  filter(carb > 1) %>%
+  lm(mpg ~ cyl + hp, data = .) %>%
+  summary()
+# Note the inclusion of 'data = .' in the lm() function. This tells the data argument of the lm() function to use whatever
+# data set has been passed down from higher up the pipe command. Otherwise, we would have to run a regression as follows:
+
+lm(mpg ~ cyl + hp, data = mtcars)
+
+
+### END OF ACTIVITY SIX [ACT006] ###
+
+
+##############################################
+
+
+##############################################
+
+
+
+# Final Thoughts #
+
+# Congratulations on progressing through the workshop. Our aim was to equip you, as rapidly and painlessly as possible,
+# with a proficiency in data wrangling using R .
+
+# While you have covered a great deal of material and skills, there is a bigger and badder world of R programming and wrangling out there.
+
+# Take a look at some of the suggested resources on workshop Github repository [https://github.com/DiarmuidM/aqmen-data-wrangling-in-R/tree/master/resources].
+
+# Hopefully this workshop has gone some way to convincing you of the value of adopting
+# social science approaches and tools for data science work; if not then let us know how we can improve;
+# if so then please engage with us on further topics and tools e.g. Social Network Analysis, Reproducible Data Analytics.
+
+# Good luck with future data wrangling and analytics work.
+
+
+# "Big wheels rolling through fields
+# Where sunlight streams
+# Meet me in a land of hope and dreams"
+
+# - Bruce Springsteen, Land of Hope and Dreams (2012)
+
+
+########################################### FIN ##################################################
+

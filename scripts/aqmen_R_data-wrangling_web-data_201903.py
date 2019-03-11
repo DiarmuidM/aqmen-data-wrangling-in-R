@@ -43,6 +43,9 @@ Also notice how we've enclosed all of this text in three single quotes.
 #   6. Connecting to online databases (APIs) and requesting information
 
 
+# IMPORTANT: you need a working internet connection to execute this script.
+
+
 ################################################################################################
 
 
@@ -86,11 +89,11 @@ except:
 
 # 5.2 Setting up project folders
 
-# Let's use the same folders we created earlier in the workshops
+# Let's use the same folders we created earlier in the workshop
 
 # Define paths
 
-wd = "C:/Users/mcdonndz-local/Desktop/data-wrangling-201903" # define the working directory
+wd = "C:/Users/mcdonndz-local/Desktop/data-wrangling-201903" # define the working directory; you need to change this to the path on your machine
 data_raw = wd + '/' + 'data_raw' # raw data directory
 
 print(wd) # print the string identifying the workshop working directory
@@ -119,7 +122,7 @@ print(data_raw) # print the string identifying the raw data directory
 
 # The final two reasons are the most important: charity records, like a lot of administrative
 # data sets, are continuously updated. This means that observations for certain organisations
-# can disappear over time. A script that rountinely and accurately downloads regular
+# can disappear over time. A script that routinely and accurately downloads regular
 # snapshots of charity data would be a valuable data collection tool.
 
 # Enough talk, more action:
@@ -129,17 +132,18 @@ print(data_raw) # print the string identifying the raw data directory
 regurl = "https://www.charitycommissionni.org.uk/umbraco/api/charityApi/ExportSearchResultsToCsv/?pageNumber=1"
 trusteeurl = "https://www.charitycommissionni.org.uk/media/1144/20180327-register-of-removed-trustees.xls"
 
-# Download Register
+# Download Charity Register
 
 r = requests.get(regurl, allow_redirects=True) # request the url
 print(r.status_code, r.headers) # print the metadata behind the request to see if it was successful
 # A status code of 200 is what we are looking for.
 
-# Write the r.content to a file on Dropbox
-print(type(r.content)) # Python object containing the csv file
+# Save the content of the request (i.e. the data) to a csv file
+
+print(type(r.content)) # Python object containing the data
 
 outputfile = data_raw + "/ni_charityregister_201903.csv" # create an object storing the path and file name of the csv
-print(outputfile) # display this path to the console
+print(outputfile) # display this path
 
 with open(outputfile, 'wb') as f: # with the output file open in "write binary" mode, and giving it a shorter name (f)
     f.write(r.content) # write the contents of the r.content object to the file
@@ -159,11 +163,13 @@ with open(outputfile, 'wb') as f: # with the output file open in "write binary" 
  
 # 5.4 Harvesting information from websites
  
-# Downloading files from the web is relatively unproblematic. It is a different scenario if
-# we want to download information contained in the text of the webpage itself.
+# Downloading files from the web is relatively unproblematic; usually the main issue is the link (url) to the webpage changing
+# or becoming defunct.
+
+# It is a different scenario if we want to download information contained in the text of the webpage itself.
  
 # For this we need a different approach: we need to parse the contents of a webpage, find the
-# information we are interested in, store it in Python objects, and write this objects to a file.
+# information we are interested in, store it in Python objects, and write these objects to a file.
  
 # This sounds a bit abstract, so let's get stuck in to an example.
  
@@ -174,7 +180,7 @@ with open(outputfile, 'wb') as f: # with the output file open in "write binary" 
  
 # Define files
  
-inputfile = data_raw + "/ni_charityregister_201903.csv" # use the charity register as our input file
+inputfile = data_raw + "/ni_charityregister_201903.csv" # use the charity register we downloaded as our input file
 outputfile = data_raw + "/ni_trustee_data_201903.csv" # file where the web-scrape results will be stored
 
 # Delete output file if already exists
@@ -228,12 +234,12 @@ for ccnum in regno_list[0:20]: # for the first 20 charity numbers contained in r
         trustees = soup_org.find_all('td') # find the contents of the trustee table (i.e. the "td" tags)
         print(trustees) # print the results of this search
         
-        # It looks like we have what we need; now let's extract the trustee name from table
+        # It looks like we have what we need; now let's extract the trustee name from the table
         
-        trustee = list(map(lambda x : x.text, trustees)) # extract trustee name from within the "td" tags
+        trustee = list(map(lambda x : x.text, trustees)) # extract trustee name from within the "td" tags and store in a list called "trustee"
         print(trustee)
     
-        trustee_dict = {"ccnum": ccnum, "trustee": trustee} # store downloaded data as a dictionary
+        trustee_dict = {"ccnum": ccnum, "trustee": trustee} # store the data as a dictionary
         df_csv = pd.DataFrame(trustee_dict) # convert the dictionary to a data frame
         print(df_csv) # print the contents of the data frame
 		
@@ -246,8 +252,7 @@ for ccnum in regno_list[0:20]: # for the first 20 charity numbers contained in r
     
 print("Finished searching for trustee information.")
 
-# And there we have it: a simple web-scraper for collecting trustee names from the Regulator's
-# website.
+# And there we have it: a simple web-scraper for collecting trustee names from the Regulator's website.
 
 # We've covered quite a lot so take a bit of time to reflect on what the above code does, how it
 # parses web pages, how it stores results in various data structures (e.g. lists, dictionaries etc).
@@ -279,7 +284,7 @@ print("Finished searching for trustee information.")
 
 # Define paths
 
-wd = "C:/Users/mcdonndz-local/Desktop/data-wrangling-201903" # define the working directory
+wd = "C:/Users/mcdonndz-local/Desktop/data-wrangling-201903" # define the working directory; you need to change this to the path on your machine
 data_raw = wd + '/' + 'data_raw' # raw data directory
 
 print(wd) # print the string identifying the workshop working directory
@@ -352,7 +357,7 @@ for fid in fid_list: # search for the ids in the list
 
 # Some things to consider with harvesting data from the web:
     # 1. You should still adhere to ethical research principles and practices.
-    # 2. Make sure you comply with the restrictions arounf the use of certain information e.g. email addresses, phone numbers.
+    # 2. Make sure you comply with the restrictions around the use of certain information e.g. email addresses, phone numbers.
     # 3. The old ways can be best i.e. requesting data from a human.
     
 
