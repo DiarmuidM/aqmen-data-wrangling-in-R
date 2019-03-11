@@ -1025,6 +1025,11 @@ char_reg$income[char_reg$income==-9] <- -NA # recode -9 as missing
 
 # TASK: recode 0 as missing for income.
 
+# How you conceptualise and handle missing data has significant implications for the validity of your findings.
+# We suggest reading some of the guidance provided by UCLA's Institute for Digital Research and Education (IDRE)
+# [https://stats.idre.ucla.edu/stata/seminars/mi_in_stata_pt1_new/]
+
+
 # 2.6 Saving Data
 
 # We have conducted some basic but effective data wrangling work on our raw data - time to save the results:
