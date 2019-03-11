@@ -6,10 +6,11 @@ The following are guidelines for downloading R, RStudio and Python to your machi
 
 #### Anaconda
 
-The **Anaconda Distribution** is a data science package that installs a number of different programs on your machine, including R, RStudio, Python, and Spyder.
+The **Anaconda Distribution** is a data science package that installs a number of different programs on your machine, including RStudio, Python, and Spyder.
 1. Head to [https://www.anaconda.com/distribution/](https://www.anaconda.com/distribution/).
 2. Select your operating system.
 3. Download the most up-to-date distribution e.g. on 11/03/2019 the current version was Python 3.7.
+4. Download the version of R compatible with your operating system [https://cloud.r-project.org/](https://cloud.r-project.org/).
 
 ### Method Two:
 
