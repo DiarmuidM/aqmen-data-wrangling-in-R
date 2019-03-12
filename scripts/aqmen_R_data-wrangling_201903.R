@@ -957,8 +957,8 @@ class(char_reg$inc_cat) # stored as a factor
 levels(char_reg$inc_cat)
 table(unclass(char_reg$inc_cat)) # view the underlying codes of the factors
 
-char_reg$inc_cat_r <- char_reg$inc_cat # create a copy of the income category variable
-char_reg$inc_cat_r <- recode(as.integer(char_reg$inc_cat_r), "c(1,2)=0; 3=1") # NEEDS FIXING!
+# char_reg$inc_cat_r <- char_reg$inc_cat # create a copy of the income category variable
+# char_reg$inc_cat_r <- recode(as.integer(char_reg$inc_cat_r), "c(1,2)=0; 3=1")
 
 
 # 2.4 Subsettting Data
