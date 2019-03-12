@@ -199,7 +199,7 @@ library(tidyverse) # load in the "tidyverse" package of data wrangling functions
 ?tidyverse
 vignette("tidyverse")
 
-# TASK: load in the "car", "haven", and "expss" packages.
+# TASK: load in the "car", "haven", "lubridate", "readxl" and "expss" packages.
 
 # A final note about packages: you'll see mention of executing functions or tasks using base R. This means utilising the functions that come
 # as standard with your version of R. install.packages() and write.csv() are examples of base R functions.
