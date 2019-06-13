@@ -47,4 +47,4 @@ Feel free to contact AQMEN if you would like to discuss any aspect of the traini
 
 ### Acknowledgements:
 
-Our thanks to the Economic and Social Research Council (ESRC) for supporting this training programme: Grant No. **ES/R006334/1**
+Our thanks to the Economic and Social Research Council (ESRC), Nuffield Foundation, and Department for Business, Energy and Industrial Strategy (BEIS) for supporting this training programme: Grant No. **ES/R006334/1**
